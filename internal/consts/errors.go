@@ -8,4 +8,5 @@ var (
 	InvalidToken           = errors.New("invalid token")
 	InvalidTokenClaimsType = errors.New("invalid token claims type")
 	InvalidOrMissingClaim  = errors.New("invalid or missing claim")
+	WrongPassword          = errors.New("wrong password")
 )
