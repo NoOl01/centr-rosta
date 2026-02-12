@@ -1,12 +1,9 @@
 package main
 
 import (
+	"centr_rosta/internal/bootstrap"
 	"centr_rosta/internal/config"
 	"centr_rosta/internal/consts"
-	"centr_rosta/internal/handler"
-	"centr_rosta/internal/repository"
-	auth2 "centr_rosta/internal/repository/auth"
-	"centr_rosta/internal/service/auth"
 	"centr_rosta/pkg/logger"
 	"context"
 	"errors"
@@ -20,6 +17,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/nool01/velog/pkg/velog"
+	"github.com/redis/go-redis/v9"
 )
 
 func main() {
@@ -30,10 +28,14 @@ func main() {
 
 	logger.Log.Info(consts.Server, "server starting...")
 
-	db := repository.Connect()
-	repo := auth2.NewRepository(db)
-	srv := auth.NewService(repo)
-	h := handler.NewHandler(srv)
+	rdb, h := bootstrap.Bootstrap()
+	defer func(rdb *redis.Client) {
+		err := rdb.Close()
+		if err != nil {
+			logger.Log.Error(consts.Server, "Failed to close Redis connection")
+			return
+		}
+	}(rdb)
 
 	if !config.Env.Debug {
 		gin.SetMode(gin.ReleaseMode)

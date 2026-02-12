@@ -2,6 +2,7 @@ package auth
 
 import (
 	"centr_rosta/internal/dto"
+	"centr_rosta/internal/infra/session"
 	"centr_rosta/internal/repository/auth"
 )
 
@@ -13,7 +14,8 @@ type ServiceAuth interface {
 }
 
 type serviceAuth struct {
-	repo auth.RepositoryAuth
+	repo    auth.RepositoryAuth
+	session session.RepositorySession
 }
 
 func (s serviceAuth) Register(user dto.User) error {
@@ -36,6 +38,9 @@ func (s serviceAuth) Update(user dto.User) error {
 	panic("implement me")
 }
 
-func NewService(repo auth.RepositoryAuth) ServiceAuth {
-	return &serviceAuth{repo: repo}
+func NewService(repo auth.RepositoryAuth, session session.RepositorySession) ServiceAuth {
+	return &serviceAuth{
+		repo:    repo,
+		session: session,
+	}
 }

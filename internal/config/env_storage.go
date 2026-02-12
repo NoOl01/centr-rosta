@@ -17,6 +17,8 @@ type envStorage struct {
 	MailPass   string
 	SmtpHost   string
 	SmtpPort   string
+	RedisPort  string
+	RedisPass  string
 	Debug      bool
 }
 
@@ -34,6 +36,8 @@ func LoadEnv() {
 	Env.MailPass = os.Getenv("MAIL_PASS")
 	Env.SmtpHost = os.Getenv("SMTP_HOST")
 	Env.SmtpPort = os.Getenv("SMTP_PORT")
+	Env.RedisPort = os.Getenv("REDIS_PORT")
+	Env.RedisPass = os.Getenv("REDIS_PASS")
 
 	debugStr := os.Getenv("DEBUG")
 	debug, err := strconv.ParseBool(debugStr)
