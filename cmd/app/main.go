@@ -5,7 +5,8 @@ import (
 	"centr_rosta/internal/consts"
 	"centr_rosta/internal/handler"
 	"centr_rosta/internal/repository"
-	"centr_rosta/internal/service"
+	auth2 "centr_rosta/internal/repository/auth"
+	"centr_rosta/internal/service/auth"
 	"centr_rosta/pkg/logger"
 	"context"
 	"errors"
@@ -30,8 +31,8 @@ func main() {
 	logger.Log.Info(consts.Server, "server starting...")
 
 	db := repository.Connect()
-	repo := repository.NewRepository(db)
-	srv := service.NewService(repo)
+	repo := auth2.NewRepository(db)
+	srv := auth.NewService(repo)
 	h := handler.NewHandler(srv)
 
 	if !config.Env.Debug {

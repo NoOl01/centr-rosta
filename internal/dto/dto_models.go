@@ -8,6 +8,7 @@ type User struct {
 	Role      *string `json:"role,omitempty"`
 }
 
-type UpdateUserRole struct {
-	Role string `json:"role"`
+type Login struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

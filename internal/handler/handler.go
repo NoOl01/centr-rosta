@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"centr_rosta/internal/service"
+	"centr_rosta/internal/handler/auth"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,9 +11,9 @@ type Handler interface {
 }
 
 type handler struct {
-	Service service.Service
+	handlerAuth auth.HandlerAuth
 }
 
-func NewHandler(service service.Service) Handler {
-	return &handler{Service: service}
+func NewHandler(handlerAuth auth.HandlerAuth) Handler {
+	return &handler{handlerAuth: handlerAuth}
 }
