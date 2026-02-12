@@ -8,18 +8,20 @@ import (
 )
 
 type RepositorySession interface {
-	Create(ctx context.Context, session Session, ttl time.Duration) error
+	Create(ctx context.Context, session Session) (string, error)
 	Get(ctx context.Context, sessionID string) (*Session, error)
 	Delete(ctx context.Context, sessionID string) error
 }
 
 type sessionRepository struct {
-	client *redis.Client
+	rdb *redis.Client
+	ttl time.Duration
 }
 
 func NewRepositorySession(client *redis.Client) RepositorySession {
 	return &sessionRepository{
-		client: client,
+		rdb: client,
+		ttl: 24 * time.Hour * 30,
 	}
 }
 

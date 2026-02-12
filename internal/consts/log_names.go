@@ -4,4 +4,5 @@ const (
 	Server         = "Server"
 	Database       = "Database"
 	AuthRepository = "Auth Repository"
+	RedisSession   = "Redis Session"
 )
