@@ -5,4 +5,5 @@ const (
 	Database       = "Database"
 	AuthRepository = "Auth Repository"
 	RedisSession   = "Redis Session"
+	JWT            = "JWT"
 )
