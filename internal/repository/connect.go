@@ -12,8 +12,13 @@ import (
 )
 
 func Connect() *gorm.DB {
-	dsn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:%s)/%s?charset=utf8mb4",
-		config.Env.DbUser, config.Env.DbPass, config.Env.DbPort, config.Env.DbName)
+	dsn := fmt.Sprintf(
+		"host=%s port=5432 user=%s password=%s dbname=%s sslmode=disable",
+		config.Env.DbHost,
+		config.Env.DbUser,
+		config.Env.DbPass,
+		config.Env.DbName,
+	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

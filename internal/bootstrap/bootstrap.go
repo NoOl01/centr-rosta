@@ -38,7 +38,7 @@ var handler = &handlerData{}
 
 func Bootstrap() (rdb *redis.Client, h rhandler.Handler) {
 	rdb = redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("localhost:%s", config.Env.RedisPort),
+		Addr:     fmt.Sprintf("%s:%s", config.Env.RedisHost, config.Env.RedisPort),
 		Password: config.Env.RedisPass,
 		DB:       0,
 	})
@@ -68,4 +68,6 @@ func serviceInit(repo *repoData, cache *cacheData, serv *serviceData) {
 
 func handlerInit(serv *serviceData, handler *handlerData) {
 	handler.handlerAuth = authhandler.NewHandlerAuth(serv.serviceAuth)
+
+	handler.handler = rhandler.NewHandler(handler.handlerAuth)
 }
