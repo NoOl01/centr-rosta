@@ -9,4 +9,5 @@ var (
 	InvalidTokenClaimsType = errors.New("invalid token claims type")
 	InvalidOrMissingClaim  = errors.New("invalid or missing claim")
 	WrongPassword          = errors.New("wrong password")
+	MissingQueryParameter  = errors.New("missing query parameter")
 )

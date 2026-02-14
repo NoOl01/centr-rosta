@@ -10,6 +10,7 @@ import (
 type RepositorySession interface {
 	Create(ctx context.Context, session Session) (string, error)
 	Get(ctx context.Context, sessionID string) (*Session, error)
+	Update(ctx context.Context, sessionID string, session Session) error
 	Delete(ctx context.Context, sessionID string) error
 }
 

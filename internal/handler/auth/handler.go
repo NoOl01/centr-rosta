@@ -9,6 +9,7 @@ import (
 type HandlerAuth interface {
 	Register(c *gin.Context)
 	Login(c *gin.Context)
+	Refresh(c *gin.Context)
 }
 
 type handlerAuth struct {

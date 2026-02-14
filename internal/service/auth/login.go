@@ -32,8 +32,10 @@ func (s *serviceAuth) Login(ctx context.Context, user dto.Login) (string, string
 	}
 
 	newSession := session.Session{
-		UserID:      userId,
-		DeviceToken: "",
+		UserID:       userId,
+		DeviceToken:  "",
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}
 
 	sessionId, err := s.session.Create(ctx, newSession)
