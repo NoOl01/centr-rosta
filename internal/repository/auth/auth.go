@@ -49,3 +49,11 @@ func (r *repositoryAuth) DeleteUser(id int64) error {
 
 	return nil
 }
+
+func (r *repositoryAuth) GetUser(email string) (*models.User, error) {
+	var user models.User
+	if err := r.Db.Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

@@ -12,6 +12,7 @@ type RepositoryAuth interface {
 	UpdateUser(id int64, user dto.User) error
 	UpdateUserRole(id int64, role string) error
 	DeleteUser(id int64) error
+	GetUser(email string) (*models.User, error)
 }
 
 type repositoryAuth struct {

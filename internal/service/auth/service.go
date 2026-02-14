@@ -9,7 +9,7 @@ import (
 
 type ServiceAuth interface {
 	Register(ctx context.Context, user dto.User) (string, string, error)
-	Login(user dto.Login) (string, string, error)
+	Login(ctx context.Context, user dto.Login) (string, string, error)
 	Logout(token string) error
 	Update(user dto.User) error
 }
@@ -17,11 +17,6 @@ type ServiceAuth interface {
 type serviceAuth struct {
 	repo    auth.RepositoryAuth
 	session session.RepositorySession
-}
-
-func (s *serviceAuth) Login(user dto.Login) (string, string, error) {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (s *serviceAuth) Logout(token string) error {
