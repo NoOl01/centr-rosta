@@ -7,7 +7,7 @@ func (h *handler) Router(r *gin.Engine) {
 	{
 		auth := apiV1.Group("/auth")
 		{
-			auth.POST("/register")
+			auth.POST("/register", h.handlerAuth.Register)
 			auth.POST("/login", h.handlerAuth.Login)
 			auth.POST("/refresh")
 		}

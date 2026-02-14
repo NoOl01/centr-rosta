@@ -7,15 +7,8 @@ import (
 	"centr_rosta/pkg/logger"
 )
 
-func (r *repositoryAuth) CreateUser(user dto.User) error {
-	newUser := models.User{
-		FirstName: *user.FirstName,
-		LastName:  *user.LastName,
-		Email:     *user.Email,
-		Password:  *user.Password,
-	}
-
-	if err := r.Db.Create(&newUser).Error; err != nil {
+func (r *repositoryAuth) CreateUser(user *models.User) error {
+	if err := r.Db.Create(user).Error; err != nil {
 		logger.Log.Error(consts.AuthRepository, err.Error())
 		return err
 	}

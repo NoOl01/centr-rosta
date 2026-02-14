@@ -8,7 +8,7 @@ import (
 )
 
 type RepositorySession interface {
-	Create(ctx context.Context, session Session) (string, error)
+	Create(ctx context.Context, refreshToken string, session Session) error
 	Get(ctx context.Context, sessionID string) (*Session, error)
 	Delete(ctx context.Context, sessionID string) error
 }
@@ -26,7 +26,6 @@ func NewRepositorySession(client *redis.Client) RepositorySession {
 }
 
 type Session struct {
-	UserID       int64
-	RefreshToken string
-	DeviceToken  string
+	UserID      string
+	DeviceToken string
 }

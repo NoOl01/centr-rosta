@@ -7,7 +7,8 @@ import (
 )
 
 type HandlerAuth interface {
-	Login(ctx *gin.Context)
+	Register(c *gin.Context)
+	Login(c *gin.Context)
 }
 
 type handlerAuth struct {

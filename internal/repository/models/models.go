@@ -8,7 +8,7 @@ type User struct {
 	LastName             string                    `gorm:"not null"`
 	Email                string                    `gorm:"not null;uniqueIndex"`
 	Password             string                    `gorm:"not null"`
-	Role                 string                    `gorm:"not null"`
+	Role                 string                    `gorm:"not null;default:'user'"`
 	CreatedAt            time.Time                 `gorm:"not null"`
 	FavouriteLessons     []FavouriteLesson         `gorm:"foreignKey:UserID"`
 	Subscriptions        []GroupLessonSubscription `gorm:"foreignKey:UserID"`

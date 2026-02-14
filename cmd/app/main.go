@@ -53,7 +53,7 @@ func main() {
 	// todo: Web build
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%s", config.Env.ServerPort),
+		Addr:    fmt.Sprintf("0.0.0.0:%s", config.Env.ServerPort),
 		Handler: r,
 	}
 
