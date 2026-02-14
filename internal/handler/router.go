@@ -10,6 +10,7 @@ func (h *handler) Router(r *gin.Engine) {
 			auth.POST("/register", h.handlerAuth.Register)
 			auth.POST("/login", h.handlerAuth.Login)
 			auth.POST("/refresh", h.handlerAuth.Refresh)
+			auth.POST("/logout", h.handlerAuth.Logout)
 		}
 	}
 }

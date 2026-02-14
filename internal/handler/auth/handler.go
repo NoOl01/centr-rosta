@@ -10,6 +10,7 @@ type HandlerAuth interface {
 	Register(c *gin.Context)
 	Login(c *gin.Context)
 	Refresh(c *gin.Context)
+	Logout(c *gin.Context)
 }
 
 type handlerAuth struct {
