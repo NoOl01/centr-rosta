@@ -6,6 +6,7 @@ import (
 	"centr_rosta/internal/repository/models"
 	"centr_rosta/pkg/logger"
 	"fmt"
+	"log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -22,7 +23,7 @@ func Connect() *gorm.DB {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		logger.Log.Error(consts.Database, err.Error())
+		log.Fatal(err)
 		return nil
 	}
 

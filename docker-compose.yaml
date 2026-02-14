@@ -9,6 +9,9 @@ services:
       - "${SERVER_PORT}:${SERVER_PORT}"
     env_file:
       - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   redis:
     image: redis:7-alpine
@@ -21,7 +24,7 @@ services:
       - REDIS_PASSWORD=${REDIS_PASS}
     command: redis-server --requirepass ${REDIS_PASS}
     volumes:
-      - redist_data:/data
+      - redis_data:/data
 
   postgres:
     image: postgres:latest
@@ -33,9 +36,14 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
     volumes:
       - pg_data:/var/lib/postgresql/data/pgdata
 
 volumes:
   pg_data:
-  redist_data:
+  redis_data:
