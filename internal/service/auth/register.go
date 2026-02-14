@@ -10,11 +10,11 @@ import (
 	"strconv"
 )
 
-func (s *serviceAuth) Register(ctx context.Context, user dto.User) (string, string, error) {
+func (s *serviceAuth) Register(ctx context.Context, user dto.User) (string, string, string, error) {
 	var err error
 	*user.Password, err = pass_hash.EncryptPassword(*user.Password)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	newUser := models.User{
@@ -25,7 +25,7 @@ func (s *serviceAuth) Register(ctx context.Context, user dto.User) (string, stri
 	}
 
 	if err := s.repo.CreateUser(&newUser); err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	userID := strconv.FormatInt(newUser.ID, 10)
@@ -37,7 +37,7 @@ func (s *serviceAuth) Register(ctx context.Context, user dto.User) (string, stri
 
 	accessToken, refreshToken, err := jwt.GenerateToken(newPayload)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	newSession := session.Session{
@@ -45,10 +45,10 @@ func (s *serviceAuth) Register(ctx context.Context, user dto.User) (string, stri
 		DeviceToken: "",
 	}
 
-	err = s.session.Create(ctx, refreshToken, newSession)
+	sessionId, err := s.session.Create(ctx, newSession)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
-	return accessToken, refreshToken, nil
+	return accessToken, refreshToken, sessionId, nil
 }

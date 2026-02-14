@@ -9,14 +9,14 @@ import (
 	"strconv"
 )
 
-func (s *serviceAuth) Login(ctx context.Context, user dto.Login) (string, string, error) {
+func (s *serviceAuth) Login(ctx context.Context, user dto.Login) (string, string, string, error) {
 	dbUser, err := s.repo.GetUser(user.Email)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	if err := pass_hash.CheckPass(user.Password, dbUser.Password); err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	userId := strconv.FormatInt(dbUser.ID, 10)
@@ -28,7 +28,7 @@ func (s *serviceAuth) Login(ctx context.Context, user dto.Login) (string, string
 
 	accessToken, refreshToken, err := jwt.GenerateToken(payLoad)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	newSession := session.Session{
@@ -36,9 +36,10 @@ func (s *serviceAuth) Login(ctx context.Context, user dto.Login) (string, string
 		DeviceToken: "",
 	}
 
-	if err := s.session.Create(ctx, refreshToken, newSession); err != nil {
-		return "", "", err
+	sessionId, err := s.session.Create(ctx, newSession)
+	if err != nil {
+		return "", "", "", err
 	}
 
-	return accessToken, refreshToken, nil
+	return accessToken, refreshToken, sessionId, nil
 }

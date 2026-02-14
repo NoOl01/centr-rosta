@@ -24,7 +24,7 @@ func (ha *handlerAuth) Login(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
 
-	accessToken, refreshToken, err := ha.service.Login(ctx, body)
+	accessToken, refreshToken, sessionId, err := ha.service.Login(ctx, body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, dto.Result{
 			Error: dto.Strconv(err.Error()),
@@ -36,6 +36,7 @@ func (ha *handlerAuth) Login(c *gin.Context) {
 		Result: gin.H{
 			"access_token":  accessToken,
 			"refresh_token": refreshToken,
+			"session_id":    sessionId,
 		},
 	})
 }

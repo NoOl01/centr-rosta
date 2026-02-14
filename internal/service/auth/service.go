@@ -8,8 +8,8 @@ import (
 )
 
 type ServiceAuth interface {
-	Register(ctx context.Context, user dto.User) (string, string, error)
-	Login(ctx context.Context, user dto.Login) (string, string, error)
+	Register(ctx context.Context, user dto.User) (string, string, string, error)
+	Login(ctx context.Context, user dto.Login) (string, string, string, error)
 	Logout(token string) error
 	Update(user dto.User) error
 }

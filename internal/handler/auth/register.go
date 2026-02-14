@@ -25,7 +25,7 @@ func (ha *handlerAuth) Register(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
 
-	accessToken, refreshToken, err := ha.service.Register(ctx, body)
+	accessToken, refreshToken, sessionId, err := ha.service.Register(ctx, body)
 	if err != nil {
 		logger.Log.Error(consts.AuthHandler, err.Error())
 		c.JSON(http.StatusInternalServerError, dto.Result{
@@ -38,6 +38,7 @@ func (ha *handlerAuth) Register(c *gin.Context) {
 		Result: gin.H{
 			"access_token":  accessToken,
 			"refresh_token": refreshToken,
+			"session_id":    sessionId,
 		},
 	})
 }
