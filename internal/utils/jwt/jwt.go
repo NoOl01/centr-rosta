@@ -2,7 +2,8 @@ package jwt
 
 import (
 	"centr_rosta/internal/config"
-	"centr_rosta/internal/consts"
+	"centr_rosta/internal/consts/errs"
+	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/pkg/logger"
 	"fmt"
 	"time"
@@ -32,13 +33,13 @@ func GenerateToken(payload Payload) (string, string, error) {
 
 	accessTokenString, err := accessToken.SignedString(key)
 	if err != nil {
-		logger.Log.Error(consts.JWT, err.Error())
+		logger.Log.Error(log_names.JWT, err.Error())
 		return "", "", err
 	}
 
 	refreshTokenString, err := refreshToken.SignedString(key)
 	if err != nil {
-		logger.Log.Error(consts.JWT, err.Error())
+		logger.Log.Error(log_names.JWT, err.Error())
 		return "", "", err
 	}
 
@@ -50,42 +51,42 @@ func ValidateJwt(token string) (*Payload, error) {
 
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			logger.Log.Error(consts.JWT, consts.UnexpectedSignMethod.Error())
-			return nil, consts.UnexpectedSignMethod
+			logger.Log.Error(log_names.JWT, errs.UnexpectedSignMethod.Error())
+			return nil, errs.UnexpectedSignMethod
 		}
 		return jwtSecret, nil
 	})
 
 	if err != nil {
 		if parsedToken != nil && !parsedToken.Valid {
-			logger.Log.Error(consts.JWT, consts.InvalidToken.Error())
-			return nil, consts.InvalidToken
+			logger.Log.Error(log_names.JWT, errs.InvalidToken.Error())
+			return nil, errs.InvalidToken
 		}
-		logger.Log.Error(consts.JWT, err.Error())
+		logger.Log.Error(log_names.JWT, err.Error())
 		return nil, err
 	}
 
 	if parsedToken == nil || !parsedToken.Valid {
-		logger.Log.Error(consts.JWT, consts.InvalidToken.Error())
-		return nil, consts.InvalidToken
+		logger.Log.Error(log_names.JWT, errs.InvalidToken.Error())
+		return nil, errs.InvalidToken
 	}
 
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok {
-		logger.Log.Error(consts.JWT, consts.InvalidTokenClaimsType.Error())
-		return nil, consts.InvalidTokenClaimsType
+		logger.Log.Error(log_names.JWT, errs.InvalidTokenClaimsType.Error())
+		return nil, errs.InvalidTokenClaimsType
 	}
 
 	userId, ok := claims["sub"].(string)
 	if !ok {
-		logger.Log.Error(consts.JWT, consts.InvalidOrMissingClaim.Error())
-		return nil, fmt.Errorf("%w: sub", consts.InvalidOrMissingClaim)
+		logger.Log.Error(log_names.JWT, errs.InvalidOrMissingClaim.Error())
+		return nil, fmt.Errorf("%w: sub", errs.InvalidOrMissingClaim)
 	}
 
 	role, ok := claims["role"].(string)
 	if !ok {
-		logger.Log.Error(consts.JWT, consts.InvalidOrMissingClaim.Error())
-		return nil, fmt.Errorf("%w: role", consts.InvalidOrMissingClaim)
+		logger.Log.Error(log_names.JWT, errs.InvalidOrMissingClaim.Error())
+		return nil, fmt.Errorf("%w: role", errs.InvalidOrMissingClaim)
 	}
 
 	return &Payload{

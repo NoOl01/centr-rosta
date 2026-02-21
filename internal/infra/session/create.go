@@ -1,7 +1,7 @@
 package session
 
 import (
-	"centr_rosta/internal/consts"
+	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/pkg/logger"
 	"context"
 	"encoding/json"
@@ -14,7 +14,7 @@ func (s *sessionRepository) Create(ctx context.Context, session Session) (string
 
 	data, err := json.Marshal(session)
 	if err != nil {
-		logger.Log.Error(consts.RedisSession, err.Error())
+		logger.Log.Error(log_names.RedisSession, err.Error())
 	}
 
 	if err := s.rdb.Set(ctx, key, data, s.ttl).Err(); err != nil {

@@ -1,8 +1,9 @@
 package auth
 
 import (
-	"centr_rosta/internal/consts"
+	"centr_rosta/internal/consts/errs"
 	"centr_rosta/internal/consts/keys"
+	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/internal/dto"
 	"centr_rosta/pkg/logger"
 	"context"
@@ -17,16 +18,16 @@ func (ha *handlerAuth) CheckAccess(c *gin.Context) {
 	sessionId := c.Query(keys.SessionId)
 
 	if auth == "" {
-		logger.Log.Debug(consts.AuthHandler, consts.MissingHeader.Error())
+		logger.Log.Debug(log_names.AuthHandler, errs.MissingHeader.Error())
 		c.JSON(http.StatusUnauthorized, dto.Result{
-			Error: dto.Strconv(consts.MissingHeader.Error()),
+			Error: dto.Strconv(errs.MissingHeader.Error()),
 		})
 		return
 	}
 	if sessionId == "" {
-		logger.Log.Debug(consts.AuthHandler, consts.MissingQueryParameter.Error())
+		logger.Log.Debug(log_names.AuthHandler, errs.MissingQueryParameter.Error())
 		c.JSON(http.StatusUnauthorized, dto.Result{
-			Error: dto.Strconv(consts.MissingQueryParameter.Error()),
+			Error: dto.Strconv(errs.MissingQueryParameter.Error()),
 		})
 		return
 	}

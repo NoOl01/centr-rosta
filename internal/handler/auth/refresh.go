@@ -1,8 +1,9 @@
 package auth
 
 import (
-	"centr_rosta/internal/consts"
+	"centr_rosta/internal/consts/errs"
 	"centr_rosta/internal/consts/keys"
+	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/internal/dto"
 	"centr_rosta/pkg/logger"
 	"context"
@@ -15,18 +16,18 @@ import (
 func (ha *handlerAuth) Refresh(c *gin.Context) {
 	sessionId := c.Query(keys.SessionId)
 	if sessionId == "" {
-		logger.Log.Debug(consts.AuthHandler, consts.MissingQueryParameter.Error())
+		logger.Log.Debug(log_names.AuthHandler, errs.MissingQueryParameter.Error())
 		c.JSON(http.StatusBadRequest, dto.Result{
-			Error: dto.Strconv(consts.MissingQueryParameter.Error()),
+			Error: dto.Strconv(errs.MissingQueryParameter.Error()),
 		})
 		return
 	}
 
 	var body dto.Refresh
 	if err := c.ShouldBindJSON(&body); err != nil {
-		logger.Log.Debug(consts.AuthHandler, err.Error())
+		logger.Log.Debug(log_names.AuthHandler, err.Error())
 		c.JSON(http.StatusBadRequest, dto.Result{
-			Error: dto.Strconv(consts.MissingQueryParameter.Error()),
+			Error: dto.Strconv(errs.MissingQueryParameter.Error()),
 		})
 		return
 	}
@@ -36,7 +37,7 @@ func (ha *handlerAuth) Refresh(c *gin.Context) {
 
 	accessToken, refreshToken, err := ha.ua.Refresh(ctx, sessionId, body)
 	if err != nil {
-		logger.Log.Debug(consts.AuthHandler, err.Error())
+		logger.Log.Debug(log_names.AuthHandler, err.Error())
 		c.JSON(http.StatusInternalServerError, dto.Result{
 			Error: dto.Strconv(err.Error()),
 		})

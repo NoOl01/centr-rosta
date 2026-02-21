@@ -2,7 +2,7 @@ package repository
 
 import (
 	"centr_rosta/internal/config"
-	"centr_rosta/internal/consts"
+	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/internal/repository/models"
 	"centr_rosta/pkg/logger"
 	"fmt"
@@ -28,7 +28,7 @@ func Connect() *gorm.DB {
 	}
 
 	if err := db.AutoMigrate(&models.User{}, &models.Lesson{}, &models.GroupLessonSchedule{}, &models.GroupLessonSubscription{}, &models.PersonalLesson{}, &models.FavouriteLesson{}); err != nil {
-		logger.Log.Error(consts.Database, err.Error())
+		logger.Log.Error(log_names.Database, err.Error())
 	}
 
 	return db

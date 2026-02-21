@@ -3,7 +3,7 @@ package main
 import (
 	"centr_rosta/internal/bootstrap"
 	"centr_rosta/internal/config"
-	"centr_rosta/internal/consts"
+	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/pkg/logger"
 	"context"
 	"errors"
@@ -26,13 +26,13 @@ func main() {
 	logger.InitLogger()
 	defer velog.Stop()
 
-	logger.Log.Info(consts.Server, "server starting...")
+	logger.Log.Info(log_names.Server, "server starting...")
 
 	rdb, h := bootstrap.Bootstrap()
 	defer func(rdb *redis.Client) {
 		err := rdb.Close()
 		if err != nil {
-			logger.Log.Error(consts.Server, "Failed to close Redis connection")
+			logger.Log.Error(log_names.Server, "Failed to close Redis connection")
 			return
 		}
 	}(rdb)
@@ -61,21 +61,21 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		logger.Log.Info(consts.Server, "server started on: "+config.Env.ServerPort)
+		logger.Log.Info(log_names.Server, "server started on: "+config.Env.ServerPort)
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.Log.Error(consts.Server, "server start error: "+err.Error())
+			logger.Log.Error(log_names.Server, "server start error: "+err.Error())
 		}
 	}()
 
 	<-quit
-	logger.Log.Info(consts.Server, "server shutting down...")
+	logger.Log.Info(log_names.Server, "server shutting down...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(ctx); err != nil {
-		logger.Log.Error(consts.Server, "server shutdown error: "+err.Error())
+		logger.Log.Error(log_names.Server, "server shutdown error: "+err.Error())
 	} else {
-		logger.Log.Info(consts.Server, "server shutdown successfully")
+		logger.Log.Info(log_names.Server, "server shutdown successfully")
 	}
 }

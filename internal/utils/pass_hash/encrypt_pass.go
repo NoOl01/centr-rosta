@@ -1,7 +1,7 @@
 package pass_hash
 
 import (
-	"centr_rosta/internal/consts"
+	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/pkg/logger"
 
 	"golang.org/x/crypto/bcrypt"
@@ -10,7 +10,7 @@ import (
 func EncryptPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		logger.Log.Error(consts.PassHash, err.Error())
+		logger.Log.Error(log_names.PassHash, err.Error())
 		return "", err
 	}
 

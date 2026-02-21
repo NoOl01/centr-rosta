@@ -1,4 +1,4 @@
-package consts
+package log_names
 
 const (
 	Server         = "Server"

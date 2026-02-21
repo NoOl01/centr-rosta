@@ -1,7 +1,8 @@
 package session
 
 import (
-	"centr_rosta/internal/consts"
+	"centr_rosta/internal/consts/errs"
+	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/pkg/logger"
 	"context"
 	"encoding/json"
@@ -14,16 +15,16 @@ func (s *sessionRepository) Get(ctx context.Context, sessionID string) (*Session
 	data, err := s.rdb.Get(ctx, sessionID).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
-			logger.Log.Error(consts.RedisSession, consts.SessionNotFound.Error())
-			return nil, consts.SessionNotFound
+			logger.Log.Error(log_names.RedisSession, errs.SessionNotFound.Error())
+			return nil, errs.SessionNotFound
 		}
-		logger.Log.Error(consts.RedisSession, err.Error())
+		logger.Log.Error(log_names.RedisSession, err.Error())
 		return nil, err
 	}
 
 	var session Session
 	if err := json.Unmarshal([]byte(data), &session); err != nil {
-		logger.Log.Error(consts.RedisSession, err.Error())
+		logger.Log.Error(log_names.RedisSession, err.Error())
 		return nil, err
 	}
 
