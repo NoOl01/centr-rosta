@@ -6,8 +6,8 @@ import (
 	authhandler "centr_rosta/internal/handler/auth"
 	sessionrepository "centr_rosta/internal/infra/session"
 	"centr_rosta/internal/repository"
-	authrepository "centr_rosta/internal/repository/auth"
-	authservice "centr_rosta/internal/service/auth"
+	authrepository "centr_rosta/internal/repository/user"
+	authservice "centr_rosta/internal/usecase/auth"
 	"fmt"
 
 	"github.com/redis/go-redis/v9"
@@ -19,11 +19,11 @@ type cacheData struct {
 }
 
 type repoData struct {
-	repoAuth authrepository.RepositoryAuth
+	repoAuth authrepository.RepositoryUser
 }
 
 type serviceData struct {
-	serviceAuth authservice.ServiceAuth
+	useCaseAuth authservice.UseCaseAuth
 }
 
 type handlerData struct {
@@ -59,15 +59,15 @@ func cacheInit(rdb *redis.Client, cache *cacheData) {
 }
 
 func repositoryInit(db *gorm.DB, repo *repoData) {
-	repo.repoAuth = authrepository.NewRepositoryAuth(db)
+	repo.repoAuth = authrepository.NewRepositoryUser(db)
 }
 
 func serviceInit(repo *repoData, cache *cacheData, serv *serviceData) {
-	serv.serviceAuth = authservice.NewService(repo.repoAuth, cache.session)
+	serv.useCaseAuth = authservice.NewService(repo.repoAuth, cache.session)
 }
 
 func handlerInit(serv *serviceData, handler *handlerData) {
-	handler.handlerAuth = authhandler.NewHandlerAuth(serv.serviceAuth)
+	handler.handlerAuth = authhandler.NewHandlerAuth(serv.useCaseAuth)
 
 	handler.handler = rhandler.NewHandler(handler.handlerAuth)
 }

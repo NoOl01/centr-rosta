@@ -2,6 +2,7 @@ package auth
 
 import (
 	"centr_rosta/internal/consts"
+	"centr_rosta/internal/consts/keys"
 	"centr_rosta/internal/dto"
 	"centr_rosta/pkg/logger"
 	"context"
@@ -12,7 +13,7 @@ import (
 )
 
 func (ha *handlerAuth) Refresh(c *gin.Context) {
-	sessionId := c.Query("session_id")
+	sessionId := c.Query(keys.SessionId)
 	if sessionId == "" {
 		logger.Log.Debug(consts.AuthHandler, consts.MissingQueryParameter.Error())
 		c.JSON(http.StatusBadRequest, dto.Result{
@@ -33,7 +34,7 @@ func (ha *handlerAuth) Refresh(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 15*time.Second)
 	defer cancel()
 
-	accessToken, refreshToken, err := ha.service.Refresh(ctx, sessionId, body)
+	accessToken, refreshToken, err := ha.ua.Refresh(ctx, sessionId, body)
 	if err != nil {
 		logger.Log.Debug(consts.AuthHandler, err.Error())
 		c.JSON(http.StatusInternalServerError, dto.Result{

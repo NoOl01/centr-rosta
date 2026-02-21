@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"centr_rosta/internal/service/auth"
+	"centr_rosta/internal/usecase/auth"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,12 +11,13 @@ type HandlerAuth interface {
 	Login(c *gin.Context)
 	Refresh(c *gin.Context)
 	Logout(c *gin.Context)
+	CheckAccess(c *gin.Context)
 }
 
 type handlerAuth struct {
-	service auth.ServiceAuth
+	ua auth.UseCaseAuth
 }
 
-func NewHandlerAuth(serviceAuth auth.ServiceAuth) HandlerAuth {
-	return &handlerAuth{service: serviceAuth}
+func NewHandlerAuth(ua auth.UseCaseAuth) HandlerAuth {
+	return &handlerAuth{ua: ua}
 }

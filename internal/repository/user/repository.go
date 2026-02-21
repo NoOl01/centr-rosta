@@ -1,4 +1,4 @@
-package auth
+package user
 
 import (
 	"centr_rosta/internal/dto"
@@ -7,18 +7,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type RepositoryAuth interface {
+type RepositoryUser interface {
 	CreateUser(user *models.User) error
 	UpdateUser(id int64, user dto.User) error
 	UpdateUserRole(id int64, role string) error
 	DeleteUser(id int64) error
-	GetUser(email string) (*models.User, error)
+	GetUseById(id int64) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
 }
 
-type repositoryAuth struct {
+type repositoryUser struct {
 	Db *gorm.DB
 }
 
-func NewRepositoryAuth(db *gorm.DB) RepositoryAuth {
-	return &repositoryAuth{Db: db}
+func NewRepositoryUser(db *gorm.DB) RepositoryUser {
+	return &repositoryUser{Db: db}
 }

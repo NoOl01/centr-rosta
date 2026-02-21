@@ -7,7 +7,7 @@ import (
 	"context"
 )
 
-func (s *serviceAuth) Refresh(ctx context.Context, sessionID string, refreshData dto.Refresh) (string, string, error) {
+func (ua *useCaseAuth) Refresh(ctx context.Context, sessionID string, refreshData dto.Refresh) (string, string, error) {
 	payload, err := jwt.ValidateJwt(refreshData.RefreshToken)
 	if err != nil {
 		return "", "", err
@@ -25,7 +25,7 @@ func (s *serviceAuth) Refresh(ctx context.Context, sessionID string, refreshData
 		RefreshToken: refreshToken,
 	}
 
-	if err := s.session.Update(ctx, sessionID, newSession); err != nil {
+	if err := ua.session.Update(ctx, sessionID, newSession); err != nil {
 		return "", "", err
 	}
 

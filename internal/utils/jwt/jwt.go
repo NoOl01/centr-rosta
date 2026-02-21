@@ -4,7 +4,6 @@ import (
 	"centr_rosta/internal/config"
 	"centr_rosta/internal/consts"
 	"centr_rosta/pkg/logger"
-	"errors"
 	"fmt"
 	"time"
 
@@ -58,7 +57,7 @@ func ValidateJwt(token string) (*Payload, error) {
 	})
 
 	if err != nil {
-		if errors.Is(err, jwt.ErrInvalidKey) || !parsedToken.Valid {
+		if parsedToken != nil && !parsedToken.Valid {
 			logger.Log.Error(consts.JWT, consts.InvalidToken.Error())
 			return nil, consts.InvalidToken
 		}
@@ -66,13 +65,16 @@ func ValidateJwt(token string) (*Payload, error) {
 		return nil, err
 	}
 
+	if parsedToken == nil || !parsedToken.Valid {
+		logger.Log.Error(consts.JWT, consts.InvalidToken.Error())
+		return nil, consts.InvalidToken
+	}
+
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok {
 		logger.Log.Error(consts.JWT, consts.InvalidTokenClaimsType.Error())
 		return nil, consts.InvalidTokenClaimsType
 	}
-
-	var payload Payload
 
 	userId, ok := claims["sub"].(string)
 	if !ok {
@@ -86,18 +88,8 @@ func ValidateJwt(token string) (*Payload, error) {
 		return nil, fmt.Errorf("%w: role", consts.InvalidOrMissingClaim)
 	}
 
-	payload.UserId = userId
-	payload.Role = role
-
-	return &payload, nil
-}
-
-func Refresh(refreshToken string) (string, string, error) {
-	payload, err := ValidateJwt(refreshToken)
-	if err != nil {
-		logger.Log.Error(consts.JWT, err.Error())
-		return "", "", err
-	}
-
-	return GenerateToken(*payload)
+	return &Payload{
+		UserId: userId,
+		Role:   role,
+	}, nil
 }

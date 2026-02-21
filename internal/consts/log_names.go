@@ -4,8 +4,13 @@ const (
 	Server         = "Server"
 	Database       = "Database"
 	AuthHandler    = "Auth Handler"
-	AuthRepository = "Auth Repository"
+	AuthUseCase    = "Auth UseCase "
+	UserRepository = "User Repository"
 	RedisSession   = "Redis Session"
 	JWT            = "JWT"
 	PassHash       = "Pass Hash"
+)
+
+const (
+	UACheckAccess = "UseCase Auth Check Access"
 )

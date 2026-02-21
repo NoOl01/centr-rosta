@@ -10,4 +10,5 @@ var (
 	InvalidOrMissingClaim  = errors.New("invalid or missing claim")
 	WrongPassword          = errors.New("wrong password")
 	MissingQueryParameter  = errors.New("missing query parameter")
+	MissingHeader          = errors.New("missing header")
 )
