@@ -12,5 +12,10 @@ const (
 )
 
 const (
+	HARefresh = "Handler Auth Refresh"
+)
+
+const (
 	UACheckAccess = "UseCase Auth Check Access"
+	UARefresh     = "UseCase Auth Refresh"
 )

@@ -12,7 +12,7 @@ type RepositoryUser interface {
 	UpdateUser(id int64, user dto.User) error
 	UpdateUserRole(id int64, role string) error
 	DeleteUser(id int64) error
-	GetUseById(id int64) (*models.User, error)
+	GetUserById(id int64) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
 }
 

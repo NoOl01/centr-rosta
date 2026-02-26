@@ -14,14 +14,17 @@ import (
 )
 
 func (ha *handlerAuth) Refresh(c *gin.Context) {
-	sessionId := c.Query(keys.SessionId)
-	if sessionId == "" {
+	logger.Log.Debug(log_names.HARefresh, "invoked refresh")
+	sessionID := c.Query(keys.SessionId)
+	if sessionID == "" {
 		logger.Log.Debug(log_names.AuthHandler, errs.MissingQueryParameter.Error())
 		c.JSON(http.StatusBadRequest, dto.Result{
 			Error: dto.Strconv(errs.MissingQueryParameter.Error()),
 		})
 		return
 	}
+
+	logger.Log.Debug(log_names.AuthHandler, "sessionID: "+sessionID)
 
 	var body dto.Refresh
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -31,11 +34,12 @@ func (ha *handlerAuth) Refresh(c *gin.Context) {
 		})
 		return
 	}
+	logger.Log.Debug(log_names.HARefresh, "body: RefreshToken: "+body.RefreshToken)
 
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 15*time.Second)
 	defer cancel()
 
-	accessToken, refreshToken, err := ha.ua.Refresh(ctx, sessionId, body)
+	accessToken, refreshToken, err := ha.ua.Refresh(ctx, sessionID, body)
 	if err != nil {
 		logger.Log.Debug(log_names.AuthHandler, err.Error())
 		c.JSON(http.StatusInternalServerError, dto.Result{
@@ -43,6 +47,8 @@ func (ha *handlerAuth) Refresh(c *gin.Context) {
 		})
 		return
 	}
+
+	logger.Log.Debug(log_names.HARefresh, "accessToken: "+accessToken+", refreshToken: "+refreshToken)
 
 	c.JSON(http.StatusOK, dto.Result{
 		Result: gin.H{

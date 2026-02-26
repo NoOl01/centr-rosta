@@ -24,7 +24,6 @@ func (ua *useCaseAuth) CheckAccess(ctx context.Context, sessionId, authToken str
 	logger.Log.Debug(log_names.UACheckAccess, "comparing tokens")
 
 	if authToken != session.AccessToken {
-		_ = ua.deleteSession(ctx, sessionId)
 		return errs.InvalidToken
 	}
 
@@ -33,7 +32,6 @@ func (ua *useCaseAuth) CheckAccess(ctx context.Context, sessionId, authToken str
 	payload, err := jwt.ValidateJwt(authToken)
 	if err != nil {
 		logger.Log.Debug(log_names.UACheckAccess, "token is invalid. delete session")
-		_ = ua.session.Delete(ctx, sessionId)
 		return err
 	}
 
@@ -46,10 +44,9 @@ func (ua *useCaseAuth) CheckAccess(ctx context.Context, sessionId, authToken str
 
 	logger.Log.Debug(log_names.UACheckAccess, "getting user from database")
 
-	_, err = ua.ru.GetUseById(userID)
+	_, err = ua.ru.GetUserById(userID)
 	if err != nil {
 		logger.Log.Debug(log_names.UACheckAccess, "user not found. delete session")
-		_ = ua.deleteSession(ctx, sessionId)
 		return err
 	}
 
