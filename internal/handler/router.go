@@ -20,6 +20,25 @@ func (h *handler) Router(r *gin.Engine) {
 		{
 			admin := apiV1.Group("/admin")
 			admin.GET("/stat", middleware.AuthMiddleware(), middleware.SessionMiddleware(), h.handlerAdmin.GetStatsByTimePeriod)
+			{
+				user := apiV1.Group("/user")
+				user.GET("/")
+				user.POST("/")
+				user.PATCH("/")
+			}
+		}
+		{
+			lesson := apiV1.Group("/lesson")
+			lesson.GET("/")
+			lesson.GET("/favourite")
+			lesson.GET("/group")
+			lesson.GET("/personal")
+			lesson.POST("/subscribe")
+			lesson.DELETE("/cancel")
+		}
+		{
+			schedule := apiV1.Group("/schedule")
+			schedule.GET("/")
 		}
 	}
 }
