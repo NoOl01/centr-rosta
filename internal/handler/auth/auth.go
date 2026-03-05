@@ -46,7 +46,7 @@ func handleAuth[T dto.User | dto.Login](c *gin.Context, uaFunc func(context.Cont
 func (ha *handlerAuth) Refresh(c *gin.Context) {
 	logger.Log.Debug(log_names.HARefresh, "invoked refresh")
 
-	sessionID, _ := c.Get(keys.SessionId)
+	sessionID, _ := c.Get(keys.XSessionID)
 	sessionIDVal, err := getHeaderVal(sessionID)
 	if err != nil {
 		handleError(c, err)
@@ -83,7 +83,7 @@ func (ha *handlerAuth) Refresh(c *gin.Context) {
 }
 
 func (ha *handlerAuth) Logout(c *gin.Context) {
-	sessionID, _ := c.Get(keys.SessionId)
+	sessionID, _ := c.Get(keys.XSessionID)
 	sessionIDVal, err := getHeaderVal(sessionID)
 	if err != nil {
 		handleError(c, err)

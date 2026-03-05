@@ -3,6 +3,7 @@ package admin
 import (
 	"centr_rosta/internal/consts/errs"
 	"centr_rosta/internal/dto"
+	"centr_rosta/internal/utils/jwt"
 	"context"
 	"time"
 )
@@ -21,6 +22,10 @@ func (uad *useCaseAdmin) TransactionStatsByTimePeriod(cxt context.Context, acces
 
 	if session.AccessToken != accessToken {
 		return nil, errs.InvalidToken
+	}
+
+	if _, err := jwt.ValidateJwt(accessToken); err != nil {
+		return nil, err
 	}
 
 	if fromStr == "" {

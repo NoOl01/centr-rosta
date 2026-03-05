@@ -11,7 +11,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+type Middleware interface {
+	AuthMiddleware() gin.HandlerFunc
+	SessionMiddleware() gin.HandlerFunc
+}
+
+type middleware struct{}
+
+func NewMiddleware() Middleware {
+	return &middleware{}
+}
+
+func (m *middleware) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader(keys.Authorization)
 		if auth == "" {
@@ -43,7 +54,7 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-func SessionMiddleware() gin.HandlerFunc {
+func (m *middleware) SessionMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessionId := c.GetHeader(keys.XSessionID)
 		if sessionId == "" {

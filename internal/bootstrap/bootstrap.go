@@ -5,6 +5,7 @@ import (
 	rhandler "centr_rosta/internal/handler"
 	adminhandler "centr_rosta/internal/handler/admin"
 	authhandler "centr_rosta/internal/handler/auth"
+	"centr_rosta/internal/handler/middleware"
 	sessionrepository "centr_rosta/internal/infra/session"
 	"centr_rosta/internal/repository"
 	"centr_rosta/internal/repository/lesson"
@@ -39,10 +40,15 @@ type handlerData struct {
 	handlerAdmin adminhandler.HandlerAdmin
 }
 
+type middlewareData struct {
+	middleware middleware.Middleware
+}
+
 var cache = &cacheData{}
 var repo = &repoData{}
 var serv = &useCaseData{}
 var handler = &handlerData{}
+var mw = &middlewareData{}
 
 func Bootstrap() (rdb *redis.Client, h rhandler.Handler) {
 	rdb = redis.NewClient(&redis.Options{
@@ -52,6 +58,7 @@ func Bootstrap() (rdb *redis.Client, h rhandler.Handler) {
 	})
 	db := repository.Connect()
 
+	mw.middleware = middleware.NewMiddleware()
 	cacheInit(rdb, cache)
 	repositoryInit(db, repo)
 	serviceInit(repo, cache, serv)
@@ -81,5 +88,5 @@ func handlerInit(useCase *useCaseData, handler *handlerData) {
 	handler.handlerAuth = authhandler.NewHandlerAuth(useCase.useCaseAuth)
 	handler.handlerAdmin = adminhandler.NewHandlerAdmin(useCase.useCaseAdmin)
 
-	handler.handler = rhandler.NewHandler(handler.handlerAuth, handler.handlerAdmin)
+	handler.handler = rhandler.NewHandler(handler.handlerAuth, handler.handlerAdmin, mw.middleware)
 }
