@@ -5,7 +5,6 @@ import (
 	"centr_rosta/internal/consts/errs"
 	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/pkg/logger"
-	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -34,13 +33,13 @@ func GenerateToken(payload Payload) (string, string, error) {
 	accessTokenString, err := accessToken.SignedString(key)
 	if err != nil {
 		logger.Log.Error(log_names.JWT, err.Error())
-		return "", "", err
+		return "", "", errs.New(errs.InternalServerError, err)
 	}
 
 	refreshTokenString, err := refreshToken.SignedString(key)
 	if err != nil {
 		logger.Log.Error(log_names.JWT, err.Error())
-		return "", "", err
+		return "", "", errs.New(errs.InternalServerError, err)
 	}
 
 	return accessTokenString, refreshTokenString, nil
@@ -51,7 +50,7 @@ func ValidateJwt(token string) (*Payload, error) {
 
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			logger.Log.Error(log_names.JWT, errs.UnexpectedSignMethod.Error())
+			logger.Log.Debug(log_names.JWT, errs.UnexpectedSignMethod.Error())
 			return nil, errs.UnexpectedSignMethod
 		}
 		return jwtSecret, nil
@@ -59,7 +58,7 @@ func ValidateJwt(token string) (*Payload, error) {
 
 	if err != nil {
 		if parsedToken != nil && !parsedToken.Valid {
-			logger.Log.Error(log_names.JWT, errs.InvalidToken.Error())
+			logger.Log.Debug(log_names.JWT, errs.InvalidToken.Error())
 			return nil, errs.InvalidToken
 		}
 		logger.Log.Error(log_names.JWT, err.Error())
@@ -73,20 +72,20 @@ func ValidateJwt(token string) (*Payload, error) {
 
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok {
-		logger.Log.Error(log_names.JWT, errs.InvalidTokenClaimsType.Error())
-		return nil, errs.InvalidTokenClaimsType
+		logger.Log.Error(log_names.JWT, errs.InvalidTokenClaims.Error())
+		return nil, errs.InvalidTokenClaims
 	}
 
 	userId, ok := claims["sub"].(string)
 	if !ok {
 		logger.Log.Error(log_names.JWT, errs.InvalidOrMissingClaim.Error())
-		return nil, fmt.Errorf("%w: sub", errs.InvalidOrMissingClaim)
+		return nil, errs.InvalidOrMissingClaim
 	}
 
 	role, ok := claims["role"].(string)
 	if !ok {
 		logger.Log.Error(log_names.JWT, errs.InvalidOrMissingClaim.Error())
-		return nil, fmt.Errorf("%w: role", errs.InvalidOrMissingClaim)
+		return nil, errs.InvalidOrMissingClaim
 	}
 
 	return &Payload{

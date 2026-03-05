@@ -15,17 +15,11 @@ type UseCaseAuth interface {
 	Refresh(ctx context.Context, sessionID string, refreshData dto.Refresh) (string, string, error)
 	Logout(ctx context.Context, sessionID string) error
 	CheckAccess(ctx context.Context, sessionId, authToken string) error
-	Update(user dto.User) error
 }
 
 type useCaseAuth struct {
 	ru      user.RepositoryUser
 	session session.RepositorySession
-}
-
-func (ua *useCaseAuth) Update(user dto.User) error {
-	//TODO implement me
-	panic("implement me")
 }
 
 func NewService(ru user.RepositoryUser, session session.RepositorySession) UseCaseAuth {

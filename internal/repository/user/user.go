@@ -1,16 +1,23 @@
 package user
 
 import (
+	"centr_rosta/internal/consts/errs"
 	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/internal/dto"
 	"centr_rosta/internal/repository/models"
 	"centr_rosta/pkg/logger"
+	"errors"
+
+	"gorm.io/gorm"
 )
 
 func (ru *repositoryUser) CreateUser(user *models.User) error {
 	if err := ru.Db.Create(user).Error; err != nil {
 		logger.Log.Error(log_names.UserRepository, err.Error())
-		return err
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return errs.AlreadyExists
+		}
+		return errs.DbInternalError
 	}
 
 	return nil
@@ -26,7 +33,10 @@ func (ru *repositoryUser) UpdateUser(id int64, user dto.User) error {
 
 	if err := ru.Db.Where("id = ?", id).Updates(&newUser).Error; err != nil {
 		logger.Log.Error(log_names.UserRepository, err.Error())
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.RecordNotFound
+		}
+		return errs.DbInternalError
 	}
 
 	return nil
@@ -35,7 +45,10 @@ func (ru *repositoryUser) UpdateUser(id int64, user dto.User) error {
 func (ru *repositoryUser) UpdateUserRole(id int64, role string) error {
 	if err := ru.Db.Model(&models.User{}).Where("id = ?", id).Update("role", role).Error; err != nil {
 		logger.Log.Error(log_names.UserRepository, err.Error())
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.RecordNotFound
+		}
+		return errs.DbInternalError
 	}
 
 	return nil
@@ -44,7 +57,10 @@ func (ru *repositoryUser) UpdateUserRole(id int64, role string) error {
 func (ru *repositoryUser) DeleteUser(id int64) error {
 	if err := ru.Db.Delete(&models.User{}, id).Error; err != nil {
 		logger.Log.Error(log_names.UserRepository, err.Error())
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.RecordNotFound
+		}
+		return errs.DbInternalError
 	}
 
 	return nil
@@ -53,7 +69,10 @@ func (ru *repositoryUser) DeleteUser(id int64) error {
 func (ru *repositoryUser) GetUserById(id int64) (*models.User, error) {
 	var user models.User
 	if err := ru.Db.Where("id = ?", id).First(&user).Error; err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.RecordNotFound
+		}
+		return nil, errs.DbInternalError
 	}
 	return &user, nil
 }
@@ -61,7 +80,10 @@ func (ru *repositoryUser) GetUserById(id int64) (*models.User, error) {
 func (ru *repositoryUser) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 	if err := ru.Db.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.RecordNotFound
+		}
+		return nil, errs.DbInternalError
 	}
 	return &user, nil
 }

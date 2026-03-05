@@ -6,7 +6,6 @@ import (
 	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/internal/dto"
 	"centr_rosta/pkg/logger"
-	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -16,19 +15,23 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader(keys.Authorization)
 		if auth == "" {
-			logger.Log.Debug(log_names.Middleware, errs.MissingHeader.Error())
-			c.JSON(http.StatusUnauthorized, dto.Result{
+			code, msg := errs.HTTPError(errs.MissingHeader)
+
+			logger.Log.Debug(log_names.Middleware, msg)
+			c.JSON(code, dto.Result{
 				Result: nil,
-				Error:  dto.Strconv(errs.MissingHeader.Error()),
+				Error:  dto.Strconv(msg),
 			})
 			c.Abort()
 			return
 		}
 		if !strings.HasPrefix(auth, "Bearer ") {
-			logger.Log.Debug(log_names.Middleware, errs.InvalidHeader.Error())
-			c.JSON(http.StatusUnauthorized, dto.Result{
+			code, msg := errs.HTTPError(errs.InvalidHeader)
+
+			logger.Log.Debug(log_names.Middleware, msg)
+			c.JSON(code, dto.Result{
 				Result: nil,
-				Error:  dto.Strconv(errs.InvalidHeader.Error()),
+				Error:  dto.Strconv(msg),
 			})
 			c.Abort()
 			return
@@ -44,10 +47,12 @@ func SessionMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessionId := c.GetHeader(keys.XSessionID)
 		if sessionId == "" {
-			logger.Log.Debug(log_names.Middleware, errs.MissingHeader.Error())
-			c.JSON(http.StatusUnauthorized, dto.Result{
+			code, msg := errs.HTTPError(errs.MissingHeader)
+
+			logger.Log.Debug(log_names.Middleware, msg)
+			c.JSON(code, dto.Result{
 				Result: nil,
-				Error:  dto.Strconv(errs.MissingHeader.Error()),
+				Error:  dto.Strconv(msg),
 			})
 			c.Abort()
 			return

@@ -15,6 +15,9 @@ func (uad *useCaseAdmin) TransactionStatsByTimePeriod(cxt context.Context, acces
 	if err != nil {
 		return nil, err
 	}
+	if session == nil {
+		return nil, errs.SessionNotFound
+	}
 
 	if session.AccessToken != accessToken {
 		return nil, errs.InvalidToken
