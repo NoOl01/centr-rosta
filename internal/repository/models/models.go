@@ -63,3 +63,14 @@ type FavouriteLesson struct {
 	UserID   int64  `gorm:"not null"`
 	User     User   `gorm:"foreignKey:UserID"`
 }
+
+type Transaction struct {
+	ID        int64     `gorm:"primaryKey;autoIncrement"`
+	UserID    int64     `gorm:"not null"`
+	User      User      `gorm:"foreignKey:UserID"`
+	Amount    float64   `gorm:"not null"`
+	Type      string    `gorm:"not null"`
+	LessonID  int64     `gorm:"not null"`
+	Lesson    Lesson    `gorm:"foreignKey:LessonID"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+}

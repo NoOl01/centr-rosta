@@ -14,16 +14,9 @@ import (
 )
 
 func (ha *handlerAuth) CheckAccess(c *gin.Context) {
-	auth := c.GetHeader(keys.Authorization)
+	auth, _ := c.Get(keys.Authorization)
 	sessionId := c.Query(keys.SessionId)
 
-	if auth == "" {
-		logger.Log.Debug(log_names.AuthHandler, errs.MissingHeader.Error())
-		c.JSON(http.StatusUnauthorized, dto.Result{
-			Error: dto.Strconv(errs.MissingHeader.Error()),
-		})
-		return
-	}
 	if sessionId == "" {
 		logger.Log.Debug(log_names.AuthHandler, errs.MissingQueryParameter.Error())
 		c.JSON(http.StatusUnauthorized, dto.Result{
@@ -35,7 +28,7 @@ func (ha *handlerAuth) CheckAccess(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second*10)
 	defer cancel()
 
-	err := ha.ua.CheckAccess(ctx, sessionId, auth)
+	err := ha.ua.CheckAccess(ctx, sessionId, auth.(string))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.Result{
 			Error: dto.Strconv(err.Error()),

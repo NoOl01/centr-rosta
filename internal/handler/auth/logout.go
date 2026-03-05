@@ -2,6 +2,7 @@ package auth
 
 import (
 	"centr_rosta/internal/consts/errs"
+	"centr_rosta/internal/consts/keys"
 	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/internal/dto"
 	"centr_rosta/pkg/logger"
@@ -13,7 +14,7 @@ import (
 )
 
 func (ha *handlerAuth) Logout(c *gin.Context) {
-	sessionId := c.Query("session_id")
+	sessionId := c.Query(keys.SessionId)
 	if sessionId == "" {
 		logger.Log.Debug(log_names.AuthHandler, errs.MissingQueryParameter.Error())
 		c.JSON(http.StatusBadRequest, dto.Result{

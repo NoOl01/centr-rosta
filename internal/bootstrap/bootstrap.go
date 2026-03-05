@@ -3,10 +3,14 @@ package bootstrap
 import (
 	"centr_rosta/internal/config"
 	rhandler "centr_rosta/internal/handler"
+	adminhandler "centr_rosta/internal/handler/admin"
 	authhandler "centr_rosta/internal/handler/auth"
 	sessionrepository "centr_rosta/internal/infra/session"
 	"centr_rosta/internal/repository"
-	authrepository "centr_rosta/internal/repository/user"
+	"centr_rosta/internal/repository/lesson"
+	"centr_rosta/internal/repository/transaction"
+	"centr_rosta/internal/repository/user"
+	adminservice "centr_rosta/internal/usecase/admin"
 	authservice "centr_rosta/internal/usecase/auth"
 	"fmt"
 
@@ -19,21 +23,25 @@ type cacheData struct {
 }
 
 type repoData struct {
-	repoAuth authrepository.RepositoryUser
+	repoUser        user.RepositoryUser
+	repoLesson      lesson.RepositoryLesson
+	repoTransaction transaction.RepositoryTransaction
 }
 
-type serviceData struct {
-	useCaseAuth authservice.UseCaseAuth
+type useCaseData struct {
+	useCaseAuth  authservice.UseCaseAuth
+	useCaseAdmin adminservice.UseCaseAdmin
 }
 
 type handlerData struct {
-	handler     rhandler.Handler
-	handlerAuth authhandler.HandlerAuth
+	handler      rhandler.Handler
+	handlerAuth  authhandler.HandlerAuth
+	handlerAdmin adminhandler.HandlerAdmin
 }
 
 var cache = &cacheData{}
 var repo = &repoData{}
-var serv = &serviceData{}
+var serv = &useCaseData{}
 var handler = &handlerData{}
 
 func Bootstrap() (rdb *redis.Client, h rhandler.Handler) {
@@ -59,15 +67,19 @@ func cacheInit(rdb *redis.Client, cache *cacheData) {
 }
 
 func repositoryInit(db *gorm.DB, repo *repoData) {
-	repo.repoAuth = authrepository.NewRepositoryUser(db)
+	repo.repoUser = user.NewRepositoryUser(db)
+	repo.repoLesson = lesson.NewRepositoryLesson(db)
+	repo.repoTransaction = transaction.NewRepositoryTransaction(db)
 }
 
-func serviceInit(repo *repoData, cache *cacheData, serv *serviceData) {
-	serv.useCaseAuth = authservice.NewService(repo.repoAuth, cache.session)
+func serviceInit(repo *repoData, cache *cacheData, useCase *useCaseData) {
+	useCase.useCaseAuth = authservice.NewService(repo.repoUser, cache.session)
+	useCase.useCaseAdmin = adminservice.NewUseCaseAdmin(repo.repoTransaction, cache.session)
 }
 
-func handlerInit(serv *serviceData, handler *handlerData) {
-	handler.handlerAuth = authhandler.NewHandlerAuth(serv.useCaseAuth)
+func handlerInit(useCase *useCaseData, handler *handlerData) {
+	handler.handlerAuth = authhandler.NewHandlerAuth(useCase.useCaseAuth)
+	handler.handlerAdmin = adminhandler.NewHandlerAdmin(useCase.useCaseAdmin)
 
-	handler.handler = rhandler.NewHandler(handler.handlerAuth)
+	handler.handler = rhandler.NewHandler(handler.handlerAuth, handler.handlerAdmin)
 }

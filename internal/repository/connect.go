@@ -27,7 +27,7 @@ func Connect() *gorm.DB {
 		return nil
 	}
 
-	if err := db.AutoMigrate(&models.User{}, &models.Lesson{}, &models.GroupLessonSchedule{}, &models.GroupLessonSubscription{}, &models.PersonalLesson{}, &models.FavouriteLesson{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.Lesson{}, &models.GroupLessonSchedule{}, &models.GroupLessonSubscription{}, &models.PersonalLesson{}, &models.FavouriteLesson{}, &models.Transaction{}); err != nil {
 		logger.Log.Error(log_names.Database, err.Error())
 	}
 

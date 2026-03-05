@@ -16,3 +16,26 @@ type Login struct {
 type Refresh struct {
 	RefreshToken string `json:"refresh_token"`
 }
+
+type TransactionStats struct {
+	TotalAmount float64       `json:"total_amount"`
+	Transaction []Transaction `json:"transaction"`
+}
+type Transaction struct {
+	UserID   int64    `json:"user_id"`
+	User     UserInfo `json:"user"`
+	Amount   float64  `json:"amount"`
+	Type     string   `json:"type"`
+	LessonID int64    `json:"lesson_id"`
+	Lesson   Lesson   `json:"lesson"`
+}
+
+type UserInfo struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+}
+
+type Lesson struct {
+	Name string `json:"name"`
+}

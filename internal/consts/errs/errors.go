@@ -11,4 +11,6 @@ var (
 	WrongPassword          = errors.New("wrong password")
 	MissingQueryParameter  = errors.New("missing query parameter")
 	MissingHeader          = errors.New("missing header")
+	InvalidHeader          = errors.New("invalid header")
+	WrongTimeFormat        = errors.New("wrong time format")
 )

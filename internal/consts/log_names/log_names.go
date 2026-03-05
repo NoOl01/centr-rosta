@@ -3,6 +3,7 @@ package log_names
 const (
 	Server         = "Server"
 	Database       = "Database"
+	Middleware     = "Middleware"
 	AuthHandler    = "Auth Handler"
 	AuthUseCase    = "Auth UseCase "
 	UserRepository = "User Repository"
@@ -13,6 +14,10 @@ const (
 
 const (
 	HARefresh = "Handler Auth Refresh"
+)
+
+const (
+	HAdStat = "Handler Admin stats"
 )
 
 const (
