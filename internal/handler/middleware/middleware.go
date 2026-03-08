@@ -4,25 +4,20 @@ import (
 	"centr_rosta/internal/consts/errs"
 	"centr_rosta/internal/consts/keys"
 	"centr_rosta/internal/consts/log_names"
-	"centr_rosta/internal/dto"
+	"centr_rosta/internal/handler/dto"
 	"centr_rosta/pkg/logger"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-type Middleware interface {
-	AuthMiddleware() gin.HandlerFunc
-	SessionMiddleware() gin.HandlerFunc
+type Middleware struct{}
+
+func NewMiddleware() *Middleware {
+	return &Middleware{}
 }
 
-type middleware struct{}
-
-func NewMiddleware() Middleware {
-	return &middleware{}
-}
-
-func (m *middleware) AuthMiddleware() gin.HandlerFunc {
+func (m *Middleware) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader(keys.Authorization)
 		if auth == "" {
@@ -54,7 +49,7 @@ func (m *middleware) AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-func (m *middleware) SessionMiddleware() gin.HandlerFunc {
+func (m *Middleware) SessionMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessionId := c.GetHeader(keys.XSessionID)
 		if sessionId == "" {

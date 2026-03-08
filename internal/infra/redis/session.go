@@ -1,45 +1,19 @@
-package session
+package redis
 
 import (
 	"centr_rosta/internal/consts/errs"
 	"centr_rosta/internal/consts/log_names"
+	"centr_rosta/internal/domain/entity"
 	"centr_rosta/pkg/logger"
 	"context"
 	"encoding/json"
 	"errors"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
-type RepositorySession interface {
-	Create(ctx context.Context, session Session) (string, error)
-	Get(ctx context.Context, sessionID string) (*Session, error)
-	Update(ctx context.Context, sessionID string, session Session) error
-	Delete(ctx context.Context, sessionID string) error
-}
-
-type sessionRepository struct {
-	rdb *redis.Client
-	ttl time.Duration
-}
-
-func NewRepositorySession(client *redis.Client) RepositorySession {
-	return &sessionRepository{
-		rdb: client,
-		ttl: 24 * time.Hour * 30,
-	}
-}
-
-type Session struct {
-	UserID       string
-	DeviceToken  string
-	AccessToken  string
-	RefreshToken string
-}
-
-func (s *sessionRepository) Create(ctx context.Context, session Session) (string, error) {
+func (s *SessionRepository) Create(ctx context.Context, session entity.Session) (string, error) {
 	key := uuid.NewString()
 
 	data, err := json.Marshal(session)
@@ -56,7 +30,7 @@ func (s *sessionRepository) Create(ctx context.Context, session Session) (string
 	return key, nil
 }
 
-func (s *sessionRepository) Get(ctx context.Context, sessionID string) (*Session, error) {
+func (s *SessionRepository) Get(ctx context.Context, sessionID string) (*entity.Session, error) {
 	data, err := s.rdb.Get(ctx, sessionID).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -67,7 +41,7 @@ func (s *sessionRepository) Get(ctx context.Context, sessionID string) (*Session
 		return nil, errs.InternalError
 	}
 
-	var session Session
+	var session entity.Session
 	if err := json.Unmarshal([]byte(data), &session); err != nil {
 		logger.Log.Error(log_names.RedisSession, err.Error())
 		return nil, errs.InternalError
@@ -76,7 +50,7 @@ func (s *sessionRepository) Get(ctx context.Context, sessionID string) (*Session
 	return &session, nil
 }
 
-func (s *sessionRepository) Update(ctx context.Context, sessionID string, session Session) error {
+func (s *SessionRepository) Update(ctx context.Context, sessionID string, session entity.Session) error {
 	data, err := json.Marshal(session)
 	if err != nil {
 		logger.Log.Error(log_names.RedisSession, err.Error())
@@ -91,7 +65,7 @@ func (s *sessionRepository) Update(ctx context.Context, sessionID string, sessio
 	return nil
 }
 
-func (s *sessionRepository) Delete(ctx context.Context, sessionID string) error {
+func (s *SessionRepository) Delete(ctx context.Context, sessionID string) error {
 	if err := s.rdb.Del(ctx, sessionID).Err(); err != nil {
 		if errors.Is(err, redis.Nil) {
 			logger.Log.Debug(log_names.RedisSession, err.Error())

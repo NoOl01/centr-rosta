@@ -3,7 +3,7 @@ package repository
 import (
 	"centr_rosta/internal/config"
 	"centr_rosta/internal/consts/log_names"
-	"centr_rosta/internal/repository/models"
+	"centr_rosta/internal/infra/postgres/models"
 	"centr_rosta/pkg/logger"
 	"fmt"
 	"log"

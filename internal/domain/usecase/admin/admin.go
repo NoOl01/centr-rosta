@@ -2,30 +2,29 @@ package admin
 
 import (
 	"centr_rosta/internal/consts/errs"
-	"centr_rosta/internal/dto"
-	"centr_rosta/internal/utils/jwt"
+	"centr_rosta/internal/domain/entity"
 	"context"
 	"time"
 )
 
-func (uad *useCaseAdmin) TransactionStatsByTimePeriod(cxt context.Context, accessToken, sessionID, fromStr, toStr string) (*dto.TransactionStats, error) {
+func (uad *useCaseAdmin) TransactionStatsByTimePeriod(cxt context.Context, accessToken, sessionID, fromStr, toStr string) (*[]entity.Transaction, float64, error) {
 	var from, to time.Time
 	var err error
 
 	session, err := uad.session.Get(cxt, sessionID)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	if session == nil {
-		return nil, errs.SessionNotFound
+		return nil, 0, errs.SessionNotFound
 	}
 
 	if session.AccessToken != accessToken {
-		return nil, errs.InvalidToken
+		return nil, 0, errs.InvalidToken
 	}
 
-	if _, err := jwt.ValidateJwt(accessToken); err != nil {
-		return nil, err
+	if _, err := uad.jwt.ValidateJwt(accessToken); err != nil {
+		return nil, 0, err
 	}
 
 	if fromStr == "" {
@@ -33,7 +32,7 @@ func (uad *useCaseAdmin) TransactionStatsByTimePeriod(cxt context.Context, acces
 	} else {
 		from, err = time.Parse(timeLayout, fromStr)
 		if err != nil {
-			return nil, errs.WrongTimeFormat
+			return nil, 0, errs.WrongTimeFormat
 		}
 	}
 
@@ -42,23 +41,23 @@ func (uad *useCaseAdmin) TransactionStatsByTimePeriod(cxt context.Context, acces
 	} else {
 		to, err = time.Parse(timeLayout, toStr)
 		if err != nil {
-			return nil, errs.WrongTimeFormat
+			return nil, 0, errs.WrongTimeFormat
 		}
 	}
 
 	dbTransactions, err := uad.rt.TransactionsByTimePeriod(from, to)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var totalAmount float64
 
-	transactions := make([]dto.Transaction, 0, len(dbTransactions))
+	transactions := make([]entity.Transaction, 0, len(dbTransactions))
 
 	for _, tr := range dbTransactions {
-		transactions = append(transactions, dto.Transaction{
+		transactions = append(transactions, entity.Transaction{
 			UserID: tr.UserID,
-			User: dto.UserInfo{
+			User: entity.User{
 				FirstName: tr.User.FirstName,
 				LastName:  tr.User.LastName,
 				Email:     tr.User.Email,
@@ -66,7 +65,7 @@ func (uad *useCaseAdmin) TransactionStatsByTimePeriod(cxt context.Context, acces
 			Amount:   tr.Amount,
 			Type:     tr.Type,
 			LessonID: tr.LessonID,
-			Lesson: dto.Lesson{
+			Lesson: entity.Lesson{
 				Name: tr.Lesson.Name,
 			},
 		})
@@ -74,10 +73,5 @@ func (uad *useCaseAdmin) TransactionStatsByTimePeriod(cxt context.Context, acces
 		totalAmount += tr.Amount
 	}
 
-	transactionStat := dto.TransactionStats{
-		TotalAmount: totalAmount,
-		Transaction: transactions,
-	}
-
-	return &transactionStat, nil
+	return &transactions, totalAmount, nil
 }

@@ -20,12 +20,12 @@ var (
 // 401
 var (
 	MissingAuthorizationToken = New(Unauthorized, errors.New("missing authorization token"))
-	MissingSessionID          = New(Unauthorized, errors.New("missing session id"))
+	MissingSessionID          = New(Unauthorized, errors.New("missing redis id"))
 
 	InvalidToken          = New(Unauthorized, errors.New("invalid token"))
 	InvalidTokenClaims    = New(Unauthorized, errors.New("invalid token claims"))
 	InvalidOrMissingClaim = New(Unauthorized, errors.New("invalid or missing claim"))
-	InvalidSessionID      = New(Unauthorized, errors.New("invalid session id"))
+	InvalidSessionID      = New(Unauthorized, errors.New("invalid redis id"))
 	SessionNotFound       = New(Unauthorized, errors.New("session not found"))
 
 	UnexpectedSignMethod = New(Unauthorized, errors.New("unexpected sign method"))

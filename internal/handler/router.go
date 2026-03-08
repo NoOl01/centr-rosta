@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (h *handler) Router(r *gin.Engine) {
+func (h *Handler) Router(r *gin.Engine) {
 	apiV1 := r.Group("/api/v1")
 	{
 		{

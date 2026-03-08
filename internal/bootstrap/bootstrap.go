@@ -2,46 +2,53 @@ package bootstrap
 
 import (
 	"centr_rosta/internal/config"
-	rhandler "centr_rosta/internal/handler"
-	adminhandler "centr_rosta/internal/handler/admin"
-	authhandler "centr_rosta/internal/handler/auth"
+	"centr_rosta/internal/domain/usecase/admin"
+	"centr_rosta/internal/domain/usecase/auth"
+	hand "centr_rosta/internal/handler"
+	handadmin "centr_rosta/internal/handler/admin"
+	handauth "centr_rosta/internal/handler/auth"
 	"centr_rosta/internal/handler/middleware"
-	sessionrepository "centr_rosta/internal/infra/session"
-	"centr_rosta/internal/repository"
-	"centr_rosta/internal/repository/lesson"
-	"centr_rosta/internal/repository/transaction"
-	"centr_rosta/internal/repository/user"
-	adminservice "centr_rosta/internal/usecase/admin"
-	authservice "centr_rosta/internal/usecase/auth"
+	jwts "centr_rosta/internal/infra/jwt"
+	"centr_rosta/internal/infra/pass_hash"
 	"fmt"
+
+	pg "centr_rosta/internal/infra/postgres"
+	re "centr_rosta/internal/infra/redis"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
 type cacheData struct {
-	session sessionrepository.RepositorySession
+	session *re.SessionRepository
 }
 
 type repoData struct {
-	repoUser        user.RepositoryUser
-	repoLesson      lesson.RepositoryLesson
-	repoTransaction transaction.RepositoryTransaction
+	repoUser        *pg.UserRepository
+	repoTransaction *pg.TransactionRepository
 }
 
 type useCaseData struct {
-	useCaseAuth  authservice.UseCaseAuth
-	useCaseAdmin adminservice.UseCaseAdmin
+	useCaseAuth  auth.IUseCaseAuth
+	useCaseAdmin admin.IUseCaseAdmin
 }
 
 type handlerData struct {
-	handler      rhandler.Handler
-	handlerAuth  authhandler.HandlerAuth
-	handlerAdmin adminhandler.HandlerAdmin
+	handler      *hand.Handler
+	handlerAuth  *handauth.HandlerAuth
+	handlerAdmin *handadmin.HandlerAdmin
 }
 
 type middlewareData struct {
-	middleware middleware.Middleware
+	middleware *middleware.Middleware
+}
+
+type jwtData struct {
+	jwt *jwts.ServiceJwt
+}
+
+type passHashData struct {
+	passHash *pass_hash.PassHash
 }
 
 var cache = &cacheData{}
@@ -49,44 +56,59 @@ var repo = &repoData{}
 var serv = &useCaseData{}
 var handler = &handlerData{}
 var mw = &middlewareData{}
+var jwt = &jwtData{}
+var passHash = &passHashData{}
 
-func Bootstrap() (rdb *redis.Client, h rhandler.Handler) {
+func Bootstrap() (rdb *redis.Client, h hand.Handler) {
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", config.Env.RedisHost, config.Env.RedisPort),
 		Password: config.Env.RedisPass,
 		DB:       0,
 	})
-	db := repository.Connect()
+	db := pg.Connect()
 
-	mw.middleware = middleware.NewMiddleware()
+	jwtInit([]byte(config.Env.JwtSecret))
+	passHashInit()
+	middlewareInit()
 	cacheInit(rdb, cache)
 	repositoryInit(db, repo)
-	serviceInit(repo, cache, serv)
+	useCaseInit(repo, cache, serv, jwt, passHash)
 	handlerInit(serv, handler)
 
-	h = handler.handler
+	h = *handler.handler
 
 	return
 }
 
+func jwtInit(secret []byte) {
+	jwt.jwt = jwts.NewServiceJwt(secret)
+}
+
+func passHashInit() {
+	passHash.passHash = pass_hash.NewPassHash()
+}
+
+func middlewareInit() {
+	mw.middleware = middleware.NewMiddleware()
+}
+
 func cacheInit(rdb *redis.Client, cache *cacheData) {
-	cache.session = sessionrepository.NewRepositorySession(rdb)
+	cache.session = re.NewRepositorySession(rdb)
 }
 
 func repositoryInit(db *gorm.DB, repo *repoData) {
-	repo.repoUser = user.NewRepositoryUser(db)
-	repo.repoLesson = lesson.NewRepositoryLesson(db)
-	repo.repoTransaction = transaction.NewRepositoryTransaction(db)
+	repo.repoUser = pg.NewUserRepository(db)
+	repo.repoTransaction = pg.NewTransactionRepository(db)
 }
 
-func serviceInit(repo *repoData, cache *cacheData, useCase *useCaseData) {
-	useCase.useCaseAuth = authservice.NewService(repo.repoUser, cache.session)
-	useCase.useCaseAdmin = adminservice.NewUseCaseAdmin(repo.repoTransaction, cache.session)
+func useCaseInit(repo *repoData, cache *cacheData, useCase *useCaseData, jwt *jwtData, passHash *passHashData) {
+	useCase.useCaseAuth = auth.NewUseCaseAuth(repo.repoUser, cache.session, jwt.jwt, passHash.passHash)
+	useCase.useCaseAdmin = admin.NewUseCaseAdmin(repo.repoTransaction, cache.session, jwt.jwt)
 }
 
 func handlerInit(useCase *useCaseData, handler *handlerData) {
-	handler.handlerAuth = authhandler.NewHandlerAuth(useCase.useCaseAuth)
-	handler.handlerAdmin = adminhandler.NewHandlerAdmin(useCase.useCaseAdmin)
+	handler.handlerAuth = handauth.NewHandlerAuth(useCase.useCaseAuth)
+	handler.handlerAdmin = handadmin.NewHandlerAdmin(useCase.useCaseAdmin)
 
-	handler.handler = rhandler.NewHandler(handler.handlerAuth, handler.handlerAdmin, mw.middleware)
+	handler.handler = hand.NewHandler(*handler.handlerAuth, *handler.handlerAdmin, *mw.middleware)
 }

@@ -3,27 +3,19 @@ package auth
 import (
 	"centr_rosta/internal/consts/errs"
 	"centr_rosta/internal/consts/log_names"
-	"centr_rosta/internal/dto"
-	"centr_rosta/internal/usecase/auth"
+	"centr_rosta/internal/domain/usecase/auth"
+	"centr_rosta/internal/handler/dto"
 	"centr_rosta/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 )
 
-type HandlerAuth interface {
-	Register(c *gin.Context)
-	Login(c *gin.Context)
-	Refresh(c *gin.Context)
-	Logout(c *gin.Context)
-	CheckAccess(c *gin.Context)
+type HandlerAuth struct {
+	ua auth.IUseCaseAuth
 }
 
-type handlerAuth struct {
-	ua auth.UseCaseAuth
-}
-
-func NewHandlerAuth(ua auth.UseCaseAuth) HandlerAuth {
-	return &handlerAuth{ua: ua}
+func NewHandlerAuth(ua auth.IUseCaseAuth) *HandlerAuth {
+	return &HandlerAuth{ua: ua}
 }
 
 func getHeaderVal(headerValue any) (string, error) {

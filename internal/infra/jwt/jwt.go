@@ -1,23 +1,24 @@
 package jwt
 
 import (
-	"centr_rosta/internal/config"
 	"centr_rosta/internal/consts/errs"
 	"centr_rosta/internal/consts/log_names"
+	"centr_rosta/internal/domain/entity"
 	"centr_rosta/pkg/logger"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type Payload struct {
-	UserId string
-	Role   string
+type ServiceJwt struct {
+	secret []byte
 }
 
-func GenerateToken(payload Payload) (string, string, error) {
-	key := []byte(config.Env.JwtSecret)
+func NewServiceJwt(secret []byte) *ServiceJwt {
+	return &ServiceJwt{secret: secret}
+}
 
+func (j *ServiceJwt) GenerateToken(payload entity.Payload) (string, string, error) {
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":  payload.UserId,
 		"role": payload.Role,
@@ -30,13 +31,13 @@ func GenerateToken(payload Payload) (string, string, error) {
 		"exp":  time.Now().Add(30 * 24 * time.Hour).Unix(),
 	})
 
-	accessTokenString, err := accessToken.SignedString(key)
+	accessTokenString, err := accessToken.SignedString(j.secret)
 	if err != nil {
 		logger.Log.Error(log_names.JWT, err.Error())
 		return "", "", errs.New(errs.InternalServerError, err)
 	}
 
-	refreshTokenString, err := refreshToken.SignedString(key)
+	refreshTokenString, err := refreshToken.SignedString(j.secret)
 	if err != nil {
 		logger.Log.Error(log_names.JWT, err.Error())
 		return "", "", errs.New(errs.InternalServerError, err)
@@ -45,15 +46,13 @@ func GenerateToken(payload Payload) (string, string, error) {
 	return accessTokenString, refreshTokenString, nil
 }
 
-func ValidateJwt(token string) (*Payload, error) {
-	jwtSecret := []byte(config.Env.JwtSecret)
-
+func (j *ServiceJwt) ValidateJwt(token string) (*entity.Payload, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			logger.Log.Debug(log_names.JWT, errs.UnexpectedSignMethod.Error())
 			return nil, errs.UnexpectedSignMethod
 		}
-		return jwtSecret, nil
+		return j.secret, nil
 	})
 
 	if err != nil {
@@ -88,7 +87,7 @@ func ValidateJwt(token string) (*Payload, error) {
 		return nil, errs.InvalidOrMissingClaim
 	}
 
-	return &Payload{
+	return &entity.Payload{
 		UserId: userId,
 		Role:   role,
 	}, nil

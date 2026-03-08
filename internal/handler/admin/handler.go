@@ -1,45 +1,39 @@
 package admin
 
 import (
-	"centr_rosta/internal/usecase/admin"
+	"centr_rosta/internal/consts/errs"
+	"centr_rosta/internal/consts/log_names"
+	"centr_rosta/internal/domain/usecase/admin"
+	"centr_rosta/internal/handler/dto"
+	"centr_rosta/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 )
 
-type HandlerAdmin interface {
-	GetEmployees(c *gin.Context)
-	GetLessons(c *gin.Context)
-	GetSchedule(c *gin.Context)
-	GetDefaultStats(c *gin.Context)
-	GetStatsByTimePeriod(c *gin.Context)
+type HandlerAdmin struct {
+	uad admin.IUseCaseAdmin
 }
 
-type handlerAdmin struct {
-	uad admin.UseCaseAdmin
-}
-
-func (ha *handlerAdmin) GetEmployees(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (ha *handlerAdmin) GetLessons(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (ha *handlerAdmin) GetSchedule(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (ha *handlerAdmin) GetDefaultStats(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func NewHandlerAdmin(uad admin.UseCaseAdmin) HandlerAdmin {
-	return &handlerAdmin{
+func NewHandlerAdmin(uad admin.IUseCaseAdmin) *HandlerAdmin {
+	return &HandlerAdmin{
 		uad: uad,
 	}
+}
+
+func getHeaderVal(headerValue any) (string, error) {
+	value, ok := headerValue.(string)
+	if !ok {
+		return "", errs.MissingHeader
+	}
+
+	return value, nil
+}
+
+func handleError(c *gin.Context, err error) {
+	logger.Log.Debug(log_names.AuthHandler, err.Error())
+	code, msg := errs.HTTPError(err)
+	c.JSON(code, dto.Result{
+		Result: nil,
+		Error:  dto.Strconv(msg),
+	})
 }
