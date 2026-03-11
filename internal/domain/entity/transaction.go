@@ -6,5 +6,5 @@ type Transaction struct {
 	Amount   float64
 	Type     string
 	LessonID int64
-	Lesson   Lesson
+	Lesson   LessonName
 }

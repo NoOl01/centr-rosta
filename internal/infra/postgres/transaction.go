@@ -22,7 +22,7 @@ func NewTransactionRepository(db *gorm.DB) *TransactionRepository {
 
 func (tr *TransactionRepository) TransactionsByTimePeriod(from, to time.Time) ([]entity.Transaction, error) {
 	var dbTransactions []models.Transaction
-	err := tr.db.Preload("User").Preload("Lesson").Where("created_at >= ? AND created_at <= ?", from, to).Find(&dbTransactions).Error
+	err := tr.db.Preload("User").Preload("LessonName").Where("created_at >= ? AND created_at <= ?", from, to).Find(&dbTransactions).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.RecordNotFound
@@ -42,7 +42,7 @@ func (tr *TransactionRepository) TransactionsByTimePeriod(from, to time.Time) ([
 			Amount:   trn.Amount,
 			Type:     trn.Type,
 			LessonID: trn.LessonID,
-			Lesson: entity.Lesson{
+			Lesson: entity.LessonName{
 				Name: trn.Lesson.Name,
 			},
 		})

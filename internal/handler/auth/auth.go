@@ -5,6 +5,7 @@ import (
 	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/internal/domain/entity"
 	dto2 "centr_rosta/internal/handler/dto"
+	"centr_rosta/internal/handler/helper"
 	"centr_rosta/pkg/logger"
 	"context"
 	"net/http"
@@ -16,7 +17,7 @@ import (
 func (ha *HandlerAuth) Register(c *gin.Context) {
 	var body dto2.User
 	if err := c.ShouldBindJSON(&body); err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 
@@ -32,7 +33,7 @@ func (ha *HandlerAuth) Register(c *gin.Context) {
 
 	access, refresh, sid, err := ha.ua.Register(ctx, dBody)
 	if err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 
@@ -46,7 +47,7 @@ func (ha *HandlerAuth) Register(c *gin.Context) {
 func (ha *HandlerAuth) Login(c *gin.Context) {
 	var body dto2.Login
 	if err := c.ShouldBindJSON(&body); err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 
@@ -60,7 +61,7 @@ func (ha *HandlerAuth) Login(c *gin.Context) {
 
 	access, refresh, sid, err := ha.ua.Login(ctx, dBody)
 	if err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 
@@ -75,9 +76,9 @@ func (ha *HandlerAuth) Refresh(c *gin.Context) {
 	logger.Log.Debug(log_names.HARefresh, "invoked refresh")
 
 	sessionID, _ := c.Get(keys.XSessionID)
-	sessionIDVal, err := getHeaderVal(sessionID)
+	sessionIDVal, err := helper.GetHeaderVal(sessionID)
 	if err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 
@@ -85,7 +86,7 @@ func (ha *HandlerAuth) Refresh(c *gin.Context) {
 
 	var body dto2.Refresh
 	if err := c.ShouldBindJSON(&body); err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 
@@ -100,7 +101,7 @@ func (ha *HandlerAuth) Refresh(c *gin.Context) {
 
 	accessToken, refreshToken, err := ha.ua.Refresh(ctx, sessionIDVal, dBody)
 	if err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 
@@ -116,9 +117,9 @@ func (ha *HandlerAuth) Refresh(c *gin.Context) {
 
 func (ha *HandlerAuth) Logout(c *gin.Context) {
 	sessionID, _ := c.Get(keys.XSessionID)
-	sessionIDVal, err := getHeaderVal(sessionID)
+	sessionIDVal, err := helper.GetHeaderVal(sessionID)
 	if err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 
@@ -126,7 +127,7 @@ func (ha *HandlerAuth) Logout(c *gin.Context) {
 	defer cancel()
 
 	if err := ha.ua.Logout(ctx, sessionIDVal); err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 
@@ -139,15 +140,15 @@ func (ha *HandlerAuth) CheckAccess(c *gin.Context) {
 	auth, _ := c.Get(keys.Authorization)
 	sessionID, _ := c.Get(keys.XSessionID)
 
-	authVal, err := getHeaderVal(auth)
+	authVal, err := helper.GetHeaderVal(auth)
 	if err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 
-	sessionIDVal, err := getHeaderVal(sessionID)
+	sessionIDVal, err := helper.GetHeaderVal(sessionID)
 	if err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 
@@ -156,7 +157,7 @@ func (ha *HandlerAuth) CheckAccess(c *gin.Context) {
 
 	err = ha.ua.CheckAccess(ctx, sessionIDVal, authVal)
 	if err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 

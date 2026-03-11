@@ -3,6 +3,7 @@ package admin
 import (
 	"centr_rosta/internal/consts/keys"
 	dto2 "centr_rosta/internal/handler/dto"
+	"centr_rosta/internal/handler/helper"
 	"context"
 	"net/http"
 	"time"
@@ -22,7 +23,7 @@ func (ha *HandlerAdmin) GetStatsByTimePeriod(c *gin.Context) {
 
 	uTransactions, totalAmount, err := ha.uad.TransactionStatsByTimePeriod(ctx, auth.(string), sessionId.(string), from, to)
 	if err != nil {
-		handleError(c, err)
+		helper.HandleError(c, err)
 		return
 	}
 

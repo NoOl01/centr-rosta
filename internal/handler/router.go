@@ -27,7 +27,8 @@ func (h *Handler) Router(r *gin.Engine) {
 		}
 		{
 			lesson := apiV1.Group("/lesson")
-			lesson.GET("/")
+			lesson.GET("/", h.handlerLesson.GetLessons)
+			lesson.GET("/:id", h.handlerLesson.GetLessonByID)
 			lesson.GET("/favourite")
 			lesson.GET("/group")
 			lesson.GET("/personal")

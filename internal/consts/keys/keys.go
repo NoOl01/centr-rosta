@@ -12,3 +12,8 @@ const (
 	From      = "from"
 	To        = "to"
 )
+
+// Params
+const (
+	Id = "id"
+)

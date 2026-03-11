@@ -4,9 +4,11 @@ import (
 	"centr_rosta/internal/config"
 	"centr_rosta/internal/domain/usecase/admin"
 	"centr_rosta/internal/domain/usecase/auth"
+	"centr_rosta/internal/domain/usecase/lesson"
 	hand "centr_rosta/internal/handler"
 	handadmin "centr_rosta/internal/handler/admin"
 	handauth "centr_rosta/internal/handler/auth"
+	handlesson "centr_rosta/internal/handler/lesson"
 	"centr_rosta/internal/handler/middleware"
 	jwts "centr_rosta/internal/infra/jwt"
 	"centr_rosta/internal/infra/pass_hash"
@@ -26,17 +28,20 @@ type cacheData struct {
 type repoData struct {
 	repoUser        *pg.UserRepository
 	repoTransaction *pg.TransactionRepository
+	repoLesson      *pg.LessonRepository
 }
 
 type useCaseData struct {
-	useCaseAuth  auth.IUseCaseAuth
-	useCaseAdmin admin.IUseCaseAdmin
+	useCaseAuth   auth.IUseCaseAuth
+	useCaseAdmin  admin.IUseCaseAdmin
+	useCaseLesson lesson.UseCaseLesson
 }
 
 type handlerData struct {
-	handler      *hand.Handler
-	handlerAuth  *handauth.HandlerAuth
-	handlerAdmin *handadmin.HandlerAdmin
+	handler       *hand.Handler
+	handlerAuth   *handauth.HandlerAuth
+	handlerAdmin  *handadmin.HandlerAdmin
+	handlerLesson *handlesson.HandlerLesson
 }
 
 type middlewareData struct {
@@ -99,16 +104,19 @@ func cacheInit(rdb *redis.Client, cache *cacheData) {
 func repositoryInit(db *gorm.DB, repo *repoData) {
 	repo.repoUser = pg.NewUserRepository(db)
 	repo.repoTransaction = pg.NewTransactionRepository(db)
+	repo.repoLesson = pg.NewLessonRepository(db)
 }
 
 func useCaseInit(repo *repoData, cache *cacheData, useCase *useCaseData, jwt *jwtData, passHash *passHashData) {
 	useCase.useCaseAuth = auth.NewUseCaseAuth(repo.repoUser, cache.session, jwt.jwt, passHash.passHash)
 	useCase.useCaseAdmin = admin.NewUseCaseAdmin(repo.repoTransaction, cache.session, jwt.jwt)
+	useCase.useCaseLesson = lesson.NewUseCaseLesson(repo.repoLesson, cache.session)
 }
 
 func handlerInit(useCase *useCaseData, handler *handlerData) {
 	handler.handlerAuth = handauth.NewHandlerAuth(useCase.useCaseAuth)
 	handler.handlerAdmin = handadmin.NewHandlerAdmin(useCase.useCaseAdmin)
+	handler.handlerLesson = handlesson.NewHandlerLesson(useCase.useCaseLesson)
 
-	handler.handler = hand.NewHandler(*handler.handlerAuth, *handler.handlerAdmin, *mw.middleware)
+	handler.handler = hand.NewHandler(*handler.handlerAuth, *handler.handlerAdmin, *handler.handlerLesson, *mw.middleware)
 }

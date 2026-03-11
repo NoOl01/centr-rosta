@@ -65,7 +65,7 @@ func (uad *useCaseAdmin) TransactionStatsByTimePeriod(cxt context.Context, acces
 			Amount:   tr.Amount,
 			Type:     tr.Type,
 			LessonID: tr.LessonID,
-			Lesson: entity.Lesson{
+			Lesson: entity.LessonName{
 				Name: tr.Lesson.Name,
 			},
 		})
