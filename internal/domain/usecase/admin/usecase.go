@@ -9,17 +9,17 @@ const (
 	timeLayout = "02-01-2006"
 )
 
-type IUseCaseAdmin interface {
+type UseCaseAdmin interface {
 	TransactionStatsByTimePeriod(cxt context.Context, accessToken, sessionID, fromStr, toStr string) (*[]entity.Transaction, float64, error)
 }
 
 type useCaseAdmin struct {
-	rt      ITransactionRepository
-	session ISessionRepository
-	jwt     IJwt
+	rt      TransactionRepository
+	session SessionRepository
+	jwt     Jwt
 }
 
-func NewUseCaseAdmin(rt ITransactionRepository, session ISessionRepository, jwt IJwt) IUseCaseAdmin {
+func NewUseCaseAdmin(rt TransactionRepository, session SessionRepository, jwt Jwt) UseCaseAdmin {
 	return &useCaseAdmin{
 		rt:      rt,
 		session: session,

@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-type IUseCaseAuth interface {
+type UseCaseAuth interface {
 	Register(ctx context.Context, user entity.User) (string, string, string, error)
 	Login(ctx context.Context, user entity.Login) (string, string, string, error)
 	Refresh(ctx context.Context, sessionID string, refreshData entity.Refresh) (string, string, error)
@@ -14,15 +14,15 @@ type IUseCaseAuth interface {
 	CheckAccess(ctx context.Context, sessionId, authToken string) error
 }
 
-type UseCaseAuth struct {
-	ur   IUserRepository
-	sr   ISessionRepository
-	jwt  IJwt
-	pass IPassHash
+type useCaseAuth struct {
+	ur   UserRepository
+	sr   SessionRepository
+	jwt  Jwt
+	pass PassHash
 }
 
-func NewUseCaseAuth(ur IUserRepository, sr ISessionRepository, jwt IJwt, pass IPassHash) IUseCaseAuth {
-	return &UseCaseAuth{
+func NewUseCaseAuth(ur UserRepository, sr SessionRepository, jwt Jwt, pass PassHash) UseCaseAuth {
+	return &useCaseAuth{
 		ur:   ur,
 		sr:   sr,
 		jwt:  jwt,
@@ -30,7 +30,7 @@ func NewUseCaseAuth(ur IUserRepository, sr ISessionRepository, jwt IJwt, pass IP
 	}
 }
 
-func (ua *UseCaseAuth) createSession(ctx context.Context, userID int64, userRole string) (string, string, string, error) {
+func (ua *useCaseAuth) createSession(ctx context.Context, userID int64, userRole string) (string, string, string, error) {
 	userIDStr := strconv.FormatInt(userID, 10)
 
 	newPayload := entity.Payload{

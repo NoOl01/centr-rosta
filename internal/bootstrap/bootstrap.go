@@ -32,8 +32,8 @@ type repoData struct {
 }
 
 type useCaseData struct {
-	useCaseAuth   auth.IUseCaseAuth
-	useCaseAdmin  admin.IUseCaseAdmin
+	useCaseAuth   auth.UseCaseAuth
+	useCaseAdmin  admin.UseCaseAdmin
 	useCaseLesson lesson.UseCaseLesson
 }
 

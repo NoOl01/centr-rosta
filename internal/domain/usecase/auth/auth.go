@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func (ua *UseCaseAuth) Register(ctx context.Context, user entity.User) (string, string, string, error) {
+func (ua *useCaseAuth) Register(ctx context.Context, user entity.User) (string, string, string, error) {
 	var err error
 	*user.Password, err = ua.pass.EncryptPassword(*user.Password)
 	if err != nil {
@@ -23,7 +23,7 @@ func (ua *UseCaseAuth) Register(ctx context.Context, user entity.User) (string, 
 	return ua.createSession(ctx, *user.ID, *user.Role)
 }
 
-func (ua *UseCaseAuth) Login(ctx context.Context, user entity.Login) (string, string, string, error) {
+func (ua *useCaseAuth) Login(ctx context.Context, user entity.Login) (string, string, string, error) {
 	dbUser, err := ua.ur.GetUserByEmail(user.Email)
 	if err != nil {
 		return "", "", "", err
@@ -36,7 +36,7 @@ func (ua *UseCaseAuth) Login(ctx context.Context, user entity.Login) (string, st
 	return ua.createSession(ctx, *dbUser.ID, *dbUser.Role)
 }
 
-func (ua *UseCaseAuth) Refresh(ctx context.Context, sessionID string, refreshData entity.Refresh) (string, string, error) {
+func (ua *useCaseAuth) Refresh(ctx context.Context, sessionID string, refreshData entity.Refresh) (string, string, error) {
 	logger.Log.Debug(log_names.UARefresh, "refreshing... get parameters: sessionID: "+sessionID+" refreshToken: "+refreshData.RefreshToken)
 	logger.Log.Debug(log_names.UARefresh, "validating token")
 
@@ -79,7 +79,7 @@ func (ua *UseCaseAuth) Refresh(ctx context.Context, sessionID string, refreshDat
 	return accessToken, refreshToken, nil
 }
 
-func (ua *UseCaseAuth) CheckAccess(ctx context.Context, sessionId, authToken string) error {
+func (ua *useCaseAuth) CheckAccess(ctx context.Context, sessionId, authToken string) error {
 	logger.Log.Debug(log_names.UACheckAccess, "checking access...")
 
 	logger.Log.Debug(log_names.UACheckAccess, "getting redis from redis")
@@ -124,6 +124,6 @@ func (ua *UseCaseAuth) CheckAccess(ctx context.Context, sessionId, authToken str
 	return nil
 }
 
-func (ua *UseCaseAuth) Logout(ctx context.Context, sessionID string) error {
+func (ua *useCaseAuth) Logout(ctx context.Context, sessionID string) error {
 	return ua.sr.Delete(ctx, sessionID)
 }

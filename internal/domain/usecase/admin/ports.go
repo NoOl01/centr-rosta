@@ -6,14 +6,14 @@ import (
 	"time"
 )
 
-type ITransactionRepository interface {
+type TransactionRepository interface {
 	TransactionsByTimePeriod(from, to time.Time) ([]entity.Transaction, error)
 }
 
-type ISessionRepository interface {
+type SessionRepository interface {
 	Get(ctx context.Context, sessionID string) (*entity.Session, error)
 }
 
-type IJwt interface {
+type Jwt interface {
 	ValidateJwt(token string) (*entity.Payload, error)
 }

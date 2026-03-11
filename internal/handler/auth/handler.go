@@ -5,9 +5,9 @@ import (
 )
 
 type HandlerAuth struct {
-	ua auth.IUseCaseAuth
+	ua auth.UseCaseAuth
 }
 
-func NewHandlerAuth(ua auth.IUseCaseAuth) *HandlerAuth {
+func NewHandlerAuth(ua auth.UseCaseAuth) *HandlerAuth {
 	return &HandlerAuth{ua: ua}
 }

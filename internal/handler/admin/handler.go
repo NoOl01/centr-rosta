@@ -5,10 +5,10 @@ import (
 )
 
 type HandlerAdmin struct {
-	uad admin.IUseCaseAdmin
+	uad admin.UseCaseAdmin
 }
 
-func NewHandlerAdmin(uad admin.IUseCaseAdmin) *HandlerAdmin {
+func NewHandlerAdmin(uad admin.UseCaseAdmin) *HandlerAdmin {
 	return &HandlerAdmin{
 		uad: uad,
 	}
