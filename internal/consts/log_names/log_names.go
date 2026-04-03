@@ -24,3 +24,7 @@ const (
 	UACheckAccess = "UseCase Auth Check Access"
 	UARefresh     = "UseCase Auth Refresh"
 )
+
+const (
+	Helper = "Helper"
+)

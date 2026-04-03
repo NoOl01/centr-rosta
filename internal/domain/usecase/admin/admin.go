@@ -7,11 +7,11 @@ import (
 	"time"
 )
 
-func (uad *useCaseAdmin) TransactionStatsByTimePeriod(cxt context.Context, accessToken, sessionID, fromStr, toStr string) (*[]entity.Transaction, float64, error) {
+func (uad *useCaseAdmin) TransactionStatsByTimePeriod(ctx context.Context, accessToken, sessionID, fromStr, toStr string) (*[]entity.Transaction, float64, error) {
 	var from, to time.Time
 	var err error
 
-	session, err := uad.session.Get(cxt, sessionID)
+	session, err := uad.session.Get(ctx, sessionID)
 	if err != nil {
 		return nil, 0, err
 	}

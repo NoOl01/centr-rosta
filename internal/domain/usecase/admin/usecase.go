@@ -10,7 +10,7 @@ const (
 )
 
 type UseCaseAdmin interface {
-	TransactionStatsByTimePeriod(cxt context.Context, accessToken, sessionID, fromStr, toStr string) (*[]entity.Transaction, float64, error)
+	TransactionStatsByTimePeriod(ctx context.Context, accessToken, sessionID, fromStr, toStr string) (*[]entity.Transaction, float64, error)
 }
 
 type useCaseAdmin struct {

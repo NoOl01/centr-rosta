@@ -19,10 +19,11 @@ func GetHeaderVal(headerValue any) (string, error) {
 }
 
 func HandleError(c *gin.Context, err error) {
-	logger.Log.Debug(log_names.AuthHandler, err.Error())
+	logger.Log.Debug(log_names.Helper, err.Error())
 	code, msg := errs.HTTPError(err)
+
 	c.JSON(code, dto.Result{
 		Result: nil,
-		Error:  dto.Strconv(msg),
+		Error:  new(msg),
 	})
 }

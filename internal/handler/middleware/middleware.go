@@ -26,7 +26,7 @@ func (m *Middleware) AuthMiddleware() gin.HandlerFunc {
 			logger.Log.Debug(log_names.Middleware, msg)
 			c.JSON(code, dto.Result{
 				Result: nil,
-				Error:  dto.Strconv(msg),
+				Error:  new(msg),
 			})
 			c.Abort()
 			return
@@ -37,7 +37,7 @@ func (m *Middleware) AuthMiddleware() gin.HandlerFunc {
 			logger.Log.Debug(log_names.Middleware, msg)
 			c.JSON(code, dto.Result{
 				Result: nil,
-				Error:  dto.Strconv(msg),
+				Error:  new(msg),
 			})
 			c.Abort()
 			return
@@ -58,7 +58,7 @@ func (m *Middleware) SessionMiddleware() gin.HandlerFunc {
 			logger.Log.Debug(log_names.Middleware, msg)
 			c.JSON(code, dto.Result{
 				Result: nil,
-				Error:  dto.Strconv(msg),
+				Error:  new(msg),
 			})
 			c.Abort()
 			return

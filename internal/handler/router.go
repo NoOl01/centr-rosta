@@ -19,10 +19,12 @@ func (h *Handler) Router(r *gin.Engine) {
 			admin := apiV1.Group("/admin")
 			admin.GET("/stat", h.middleware.AuthMiddleware(), h.middleware.SessionMiddleware(), h.handlerAdmin.GetStatsByTimePeriod)
 			{
-				user := apiV1.Group("/user")
-				user.GET("/")
-				user.POST("/")
-				user.PATCH("/")
+				{
+					user := admin.Group("/user")
+					user.GET("/", h.middleware.AuthMiddleware(), h.middleware.SessionMiddleware(), h.adminUserHandler.GetUsers)
+					user.POST("/")
+					user.PATCH("/")
+				}
 			}
 		}
 		{

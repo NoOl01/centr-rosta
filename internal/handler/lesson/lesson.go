@@ -18,9 +18,19 @@ func (hl *HandlerLesson) GetLessons(c *gin.Context) {
 		return
 	}
 
+	resLessons := make([]dto.LessonData, 0, len(lessons))
+
+	for _, l := range lessons {
+		resLessons = append(resLessons, dto.LessonData{
+			ID:          *l.ID,
+			Name:        l.Name,
+			Description: l.Description,
+		})
+	}
+
 	c.JSON(http.StatusOK, dto.Result{
 		Error:  nil,
-		Result: lessons,
+		Result: resLessons,
 	})
 }
 
@@ -37,8 +47,14 @@ func (hl *HandlerLesson) GetLessonByID(c *gin.Context) {
 		return
 	}
 
+	resLesson := dto.LessonData{
+		ID:          *lesson.ID,
+		Name:        lesson.Name,
+		Description: lesson.Description,
+	}
+
 	c.JSON(http.StatusOK, dto.Result{
 		Error:  nil,
-		Result: lesson,
+		Result: resLesson,
 	})
 }

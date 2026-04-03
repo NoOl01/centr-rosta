@@ -22,6 +22,26 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	}
 }
 
+func (ur *UserRepository) GetUsers() ([]entity.User, error) {
+	var dbUsers []models.User
+	if err := ur.db.Find(&dbUsers).Error; err != nil {
+		return nil, errs.DbInternalError
+	}
+
+	var users []entity.User
+	for _, u := range dbUsers {
+		users = append(users, entity.User{
+			ID:        &u.ID,
+			FirstName: u.FirstName,
+			LastName:  u.LastName,
+			Email:     u.Email,
+			Role:      &u.Role,
+		})
+	}
+
+	return users, nil
+}
+
 func (ur *UserRepository) CreateUser(user *entity.User) error {
 	newUser := models.User{
 		FirstName: user.FirstName,
