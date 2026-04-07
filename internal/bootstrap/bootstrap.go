@@ -118,7 +118,7 @@ func useCaseInit(repo *repoData, cache *cacheData, useCase *useCaseData, jwt *jw
 
 	useCase.useCaseAuth = auth.NewUseCaseAuth(repo.repoUser, cache.session, jwt.jwt, passHash.passHash, validate)
 	useCase.useCaseAdmin = admin.NewUseCaseAdmin(repo.repoTransaction, validate)
-	useCase.useCaseLesson = lesson.NewUseCaseLesson(repo.repoLesson, cache.session)
+	useCase.useCaseLesson = lesson.NewUseCaseLesson(repo.repoLesson, cache.session, validate)
 	useCase.useCaseAdminUser = admin_user.NewUseCaseAdminUser(repo.repoUser, validate, passHash.passHash)
 }
 

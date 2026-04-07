@@ -7,6 +7,7 @@ import (
 
 type RepositoryLesson interface {
 	Create(lesson *entity.Lesson) error
+	Update(lessonID int64, lesson *entity.Lesson) error
 	GetAll() ([]*entity.Lesson, error)
 	GetByID(id int64) (*entity.Lesson, error)
 }

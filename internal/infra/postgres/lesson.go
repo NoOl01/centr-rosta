@@ -36,6 +36,22 @@ func (lr *LessonRepository) Create(lesson *entity.Lesson) error {
 	return nil
 }
 
+func (lr *LessonRepository) Update(lessonID int64, lesson *entity.Lesson) error {
+	dbLesson := models.Lesson{
+		Name:        lesson.Name,
+		Description: lesson.Description,
+	}
+
+	if err := lr.db.Where("id = ?", lessonID).Updates(&dbLesson).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.RecordNotFound
+		}
+		return errs.DbInternalError
+	}
+
+	return nil
+}
+
 func (lr *LessonRepository) GetAll() ([]*entity.Lesson, error) {
 	var dbLessons []models.Lesson
 

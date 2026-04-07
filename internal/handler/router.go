@@ -28,8 +28,8 @@ func (h *Handler) Router(r *gin.Engine) {
 				{
 					lesson := admin.Group("/lesson")
 					lesson.GET("/", h.handlerLesson.GetLessons)
-					lesson.POST("/")
-					lesson.PATCH("/")
+					lesson.POST("/", h.handlerLesson.CreateLesson)
+					lesson.PATCH("/", h.handlerLesson.UpdateLesson)
 				}
 			}
 		}
@@ -39,7 +39,7 @@ func (h *Handler) Router(r *gin.Engine) {
 			lesson.GET("/:id", h.handlerLesson.GetLessonByID)
 			lesson.GET("/favourite")
 			lesson.GET("/group")
-			lesson.GET("/personal")
+			lesson.POST("/personal")
 			lesson.POST("/subscribe")
 			lesson.DELETE("/cancel")
 		}

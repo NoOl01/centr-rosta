@@ -1,20 +1,28 @@
 package lesson
 
-import "centr_rosta/internal/domain/entity"
+import (
+	"centr_rosta/internal/domain/entity"
+	"centr_rosta/internal/domain/usecase/validate"
+	"context"
+)
 
 type UseCaseLesson interface {
 	GetLessons() ([]entity.Lesson, error)
 	GetLessonByID(id int64) (*entity.Lesson, error)
+	CreateLesson(ctx context.Context, sessionID, accessToken string, lesson *entity.Lesson) error
+	UpdateLesson(ctx context.Context, sessionID, accessToken string, lesson *entity.Lesson) error
 }
 
 type useCaseLesson struct {
-	rl RepositoryLesson
-	rs RepositorySession
+	rl       RepositoryLesson
+	rs       RepositorySession
+	validate validate.Validate
 }
 
-func NewUseCaseLesson(rl RepositoryLesson, rs RepositorySession) UseCaseLesson {
+func NewUseCaseLesson(rl RepositoryLesson, rs RepositorySession, validate validate.Validate) UseCaseLesson {
 	return &useCaseLesson{
-		rl: rl,
-		rs: rs,
+		rl:       rl,
+		rs:       rs,
+		validate: validate,
 	}
 }
