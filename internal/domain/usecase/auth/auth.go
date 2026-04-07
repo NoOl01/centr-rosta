@@ -80,47 +80,21 @@ func (ua *useCaseAuth) Refresh(ctx context.Context, sessionID string, refreshDat
 }
 
 func (ua *useCaseAuth) CheckAccess(ctx context.Context, sessionId, authToken string) error {
-	logger.Log.Debug(log_names.UACheckAccess, "checking access...")
-
-	logger.Log.Debug(log_names.UACheckAccess, "getting redis from redis")
-	sess, err := ua.sr.Get(ctx, sessionId)
+	payload, err := ua.validate.Validate(ctx, sessionId, authToken)
 	if err != nil {
 		return err
 	}
-	if sess == nil {
-		return errs.SessionNotFound
-	}
-
-	logger.Log.Debug(log_names.UACheckAccess, "comparing tokens")
-
-	if authToken != sess.AccessToken {
-		return errs.InvalidToken
-	}
-
-	logger.Log.Debug(log_names.UACheckAccess, "validating access token")
-
-	payload, err := ua.jwt.ValidateJwt(authToken)
-	if err != nil {
-		logger.Log.Debug(log_names.UACheckAccess, "token is invalid. delete redis")
-		return err
-	}
-
-	logger.Log.Debug(log_names.UACheckAccess, "parse userID")
 
 	userID, err := strconv.ParseInt(payload.UserId, 10, 64)
 	if err != nil {
 		return errs.InternalError
 	}
 
-	logger.Log.Debug(log_names.UACheckAccess, "getting user from database")
-
 	_, err = ua.ur.GetUserById(userID)
 	if err != nil {
-		logger.Log.Debug(log_names.UACheckAccess, "user not found. delete redis")
 		return err
 	}
 
-	logger.Log.Debug(log_names.UACheckAccess, "check access passed successfully")
 	return nil
 }
 

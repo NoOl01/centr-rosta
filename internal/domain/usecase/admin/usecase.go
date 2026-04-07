@@ -2,6 +2,7 @@ package admin
 
 import (
 	"centr_rosta/internal/domain/entity"
+	"centr_rosta/internal/domain/usecase/validate"
 	"context"
 )
 
@@ -14,15 +15,13 @@ type UseCaseAdmin interface {
 }
 
 type useCaseAdmin struct {
-	rt      TransactionRepository
-	session SessionRepository
-	jwt     Jwt
+	rt       TransactionRepository
+	validate validate.Validate
 }
 
-func NewUseCaseAdmin(rt TransactionRepository, session SessionRepository, jwt Jwt) UseCaseAdmin {
+func NewUseCaseAdmin(rt TransactionRepository, validate validate.Validate) UseCaseAdmin {
 	return &useCaseAdmin{
-		rt:      rt,
-		session: session,
-		jwt:     jwt,
+		rt:       rt,
+		validate: validate,
 	}
 }

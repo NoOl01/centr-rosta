@@ -2,23 +2,24 @@ package admin_user
 
 import (
 	"centr_rosta/internal/domain/entity"
+	"centr_rosta/internal/domain/usecase/validate"
 	"context"
 )
 
 type UseCaseAdminUser interface {
 	GetUsers(ctx context.Context, sessionID, accessToken string) ([]entity.User, error)
+	ResetPassword(ctx context.Context, sessionID, accessToken string, userID int64) (*string, error)
+	UpdateRole(ctx context.Context, sessionID, accessToken, roleName string, userID int64) error
 }
 
 type useCaseAdminUser struct {
-	ur      UserRepository
-	session SessionRepository
-	jwt     Jwt
+	ur       UserRepository
+	validate validate.Validate
 }
 
-func NewUseCaseAdminUser(ur UserRepository, session SessionRepository, jwt Jwt) UseCaseAdminUser {
+func NewUseCaseAdminUser(ur UserRepository, validate validate.Validate) UseCaseAdminUser {
 	return &useCaseAdminUser{
-		ur:      ur,
-		session: session,
-		jwt:     jwt,
+		ur:       ur,
+		validate: validate,
 	}
 }

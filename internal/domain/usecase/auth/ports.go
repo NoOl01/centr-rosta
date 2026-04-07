@@ -8,7 +8,6 @@ import (
 type UserRepository interface {
 	CreateUser(user *entity.User) error
 	UpdateUser(id int64, user *entity.UpdateUser) error
-	UpdateUserRole(id int64, role string) error
 	DeleteUser(id int64) error
 	GetUserById(id int64) (*entity.User, error)
 	GetUserByEmail(email string) (*entity.User, error)

@@ -22,6 +22,10 @@ func (hau *AdminUserHandler) GetUsers(c *gin.Context) {
 	}
 
 	accessToken, err := helper.GetHeaderVal(auth)
+	if err != nil {
+		helper.HandleError(c, err)
+		return
+	}
 
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
@@ -48,4 +52,24 @@ func (hau *AdminUserHandler) GetUsers(c *gin.Context) {
 		Result: resUsers,
 		Error:  nil,
 	})
+}
+
+func (hau *AdminUserHandler) UpdateUser(c *gin.Context) {
+	auth, _ := c.Get(keys.Authorization)
+	sessionId, _ := c.Get(keys.XSessionID)
+
+	sessionIdVal, err := helper.GetHeaderVal(sessionId)
+	if err != nil {
+		helper.HandleError(c, err)
+		return
+	}
+
+	accessToken, err := helper.GetHeaderVal(auth)
+	if err != nil {
+		helper.HandleError(c, err)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
+	defer cancel()
 }

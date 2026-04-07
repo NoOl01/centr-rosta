@@ -16,14 +16,19 @@ func (h *Handler) Router(r *gin.Engine) {
 			auth.GET("/check_access", h.middleware.AuthMiddleware(), h.middleware.SessionMiddleware(), h.handlerAuth.CheckAccess)
 		}
 		{
-			admin := apiV1.Group("/admin")
-			admin.GET("/stat", h.middleware.AuthMiddleware(), h.middleware.SessionMiddleware(), h.handlerAdmin.GetStatsByTimePeriod)
+			admin := apiV1.Group("/admin", h.middleware.AuthMiddleware(), h.middleware.SessionMiddleware())
+			admin.GET("/stat", h.handlerAdmin.GetStatsByTimePeriod)
 			{
 				{
 					user := admin.Group("/user")
-					user.GET("/", h.middleware.AuthMiddleware(), h.middleware.SessionMiddleware(), h.adminUserHandler.GetUsers)
-					user.POST("/")
+					user.GET("/", h.adminUserHandler.GetUsers)
 					user.PATCH("/")
+				}
+				{
+					lesson := admin.Group("/lesson")
+					lesson.GET("/", h.handlerLesson.GetLessons)
+					lesson.POST("/")
+					lesson.PATCH("/")
 				}
 			}
 		}
@@ -40,6 +45,10 @@ func (h *Handler) Router(r *gin.Engine) {
 		{
 			schedule := apiV1.Group("/schedule")
 			schedule.GET("/")
+		}
+		{
+			payment := apiV1.Group("/payment", h.middleware.AuthMiddleware(), h.middleware.SessionMiddleware())
+			payment.POST("/create")
 		}
 	}
 }

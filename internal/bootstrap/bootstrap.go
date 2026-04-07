@@ -6,6 +6,7 @@ import (
 	"centr_rosta/internal/domain/usecase/admin/admin_user"
 	"centr_rosta/internal/domain/usecase/auth"
 	"centr_rosta/internal/domain/usecase/lesson"
+	validateus "centr_rosta/internal/domain/usecase/validate"
 	hand "centr_rosta/internal/handler"
 	handadmin "centr_rosta/internal/handler/admin"
 	handadminus "centr_rosta/internal/handler/admin/admin_user"
@@ -60,6 +61,7 @@ type passHashData struct {
 	passHash *pass_hash.PassHash
 }
 
+var validate validateus.Validate
 var cache = &cacheData{}
 var repo = &repoData{}
 var serv = &useCaseData{}
@@ -112,10 +114,12 @@ func repositoryInit(db *gorm.DB, repo *repoData) {
 }
 
 func useCaseInit(repo *repoData, cache *cacheData, useCase *useCaseData, jwt *jwtData, passHash *passHashData) {
-	useCase.useCaseAuth = auth.NewUseCaseAuth(repo.repoUser, cache.session, jwt.jwt, passHash.passHash)
-	useCase.useCaseAdmin = admin.NewUseCaseAdmin(repo.repoTransaction, cache.session, jwt.jwt)
+	validate = validateus.NewValidate(cache.session, jwt.jwt)
+
+	useCase.useCaseAuth = auth.NewUseCaseAuth(repo.repoUser, cache.session, jwt.jwt, passHash.passHash, validate)
+	useCase.useCaseAdmin = admin.NewUseCaseAdmin(repo.repoTransaction, validate)
 	useCase.useCaseLesson = lesson.NewUseCaseLesson(repo.repoLesson, cache.session)
-	useCase.useCaseAdminUser = admin_user.NewUseCaseAdminUser(repo.repoUser, cache.session, jwt.jwt)
+	useCase.useCaseAdminUser = admin_user.NewUseCaseAdminUser(repo.repoUser, validate)
 }
 
 func handlerInit(useCase *useCaseData, handler *handlerData) {
