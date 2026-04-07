@@ -79,50 +79,51 @@ func (hl *HandlerLesson) UpdateLesson(c *gin.Context) {
 	})
 }
 
-func (hl *HandlerLesson) GetLessons(c *gin.Context) {
-	lessons, err := hl.ul.GetLessons()
-	if err != nil {
-		helper.HandleError(c, err)
-		return
-	}
+func (hl *HandlerLesson) GetLesson(c *gin.Context) {
+	lessonIdStr := c.Query(keys.Id)
+	if lessonIdStr != "" {
+		lessonID, err := strconv.ParseInt(lessonIdStr, 10, 64)
+		if err != nil {
+			helper.HandleError(c, errs.InternalError)
+			return
+		}
 
-	resLessons := make([]dto.LessonData, 0, len(lessons))
+		lesson, err := hl.ul.GetLessonByID(lessonID)
+		if err != nil {
+			helper.HandleError(c, err)
+			return
+		}
 
-	for _, l := range lessons {
-		resLessons = append(resLessons, dto.LessonData{
-			ID:          l.ID,
-			Name:        l.Name,
-			Description: l.Description,
+		resLesson := dto.LessonData{
+			ID:          lesson.ID,
+			Name:        lesson.Name,
+			Description: lesson.Description,
+		}
+
+		c.JSON(http.StatusOK, dto.Result{
+			Error:  nil,
+			Result: resLesson,
+		})
+	} else {
+		lessons, err := hl.ul.GetLessons()
+		if err != nil {
+			helper.HandleError(c, err)
+			return
+		}
+
+		resLessons := make([]dto.LessonData, 0, len(lessons))
+
+		for _, l := range lessons {
+			resLessons = append(resLessons, dto.LessonData{
+				ID:          l.ID,
+				Name:        l.Name,
+				Description: l.Description,
+			})
+		}
+
+		c.JSON(http.StatusOK, dto.Result{
+			Error:  nil,
+			Result: resLessons,
 		})
 	}
-
-	c.JSON(http.StatusOK, dto.Result{
-		Error:  nil,
-		Result: resLessons,
-	})
-}
-
-func (hl *HandlerLesson) GetLessonByID(c *gin.Context) {
-	lessonID, err := strconv.ParseInt(c.Param(keys.Id), 10, 64)
-	if err != nil {
-		helper.HandleError(c, errs.InternalError)
-		return
-	}
-
-	lesson, err := hl.ul.GetLessonByID(lessonID)
-	if err != nil {
-		helper.HandleError(c, err)
-		return
-	}
-
-	resLesson := dto.LessonData{
-		ID:          lesson.ID,
-		Name:        lesson.Name,
-		Description: lesson.Description,
-	}
-
-	c.JSON(http.StatusOK, dto.Result{
-		Error:  nil,
-		Result: resLesson,
-	})
 }

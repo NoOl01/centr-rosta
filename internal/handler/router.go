@@ -27,25 +27,30 @@ func (h *Handler) Router(r *gin.Engine) {
 				}
 				{
 					lesson := admin.Group("/lesson")
-					lesson.GET("/", h.handlerLesson.GetLessons)
+					lesson.GET("/", h.handlerLesson.GetLesson)
 					lesson.POST("/", h.handlerLesson.CreateLesson)
 					lesson.PATCH("/", h.handlerLesson.UpdateLesson)
+				}
+				{
+					personalLesson := admin.Group("/personal-lesson")
+					personalLesson.GET("/")
+					personalLesson.POST("/approve")
+					personalLesson.DELETE("/cancel")
 				}
 			}
 		}
 		{
 			lesson := apiV1.Group("/lesson")
-			lesson.GET("/", h.handlerLesson.GetLessons)
-			lesson.GET("/:id", h.handlerLesson.GetLessonByID)
-			lesson.GET("/favourite")
-			lesson.GET("/group")
-			lesson.POST("/personal")
-			lesson.POST("/subscribe")
-			lesson.DELETE("/cancel")
+			lesson.GET("/", h.handlerLesson.GetLesson)
+			lesson.GET("/favourite", h.middleware.AuthMiddleware(), h.middleware.SessionMiddleware())
+			lesson.POST("/favourite", h.middleware.AuthMiddleware(), h.middleware.SessionMiddleware())
 		}
 		{
-			schedule := apiV1.Group("/schedule")
+			schedule := apiV1.Group("/schedule", h.middleware.AuthMiddleware(), h.middleware.SessionMiddleware())
 			schedule.GET("/")
+			schedule.POST("/group")
+			schedule.POST("/personal")
+			schedule.DELETE("/cancel")
 		}
 		{
 			payment := apiV1.Group("/payment", h.middleware.AuthMiddleware(), h.middleware.SessionMiddleware())
