@@ -15,11 +15,13 @@ type UseCaseAdminUser interface {
 type useCaseAdminUser struct {
 	ur       UserRepository
 	validate validate.Validate
+	pass     PassHash
 }
 
-func NewUseCaseAdminUser(ur UserRepository, validate validate.Validate) UseCaseAdminUser {
+func NewUseCaseAdminUser(ur UserRepository, validate validate.Validate, pass PassHash) UseCaseAdminUser {
 	return &useCaseAdminUser{
 		ur:       ur,
 		validate: validate,
+		pass:     pass,
 	}
 }

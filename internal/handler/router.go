@@ -22,7 +22,8 @@ func (h *Handler) Router(r *gin.Engine) {
 				{
 					user := admin.Group("/user")
 					user.GET("/", h.adminUserHandler.GetUsers)
-					user.PATCH("/")
+					user.POST("/reset-pass", h.adminUserHandler.ResetPassword)
+					user.PATCH("/", h.adminUserHandler.UpdateRole)
 				}
 				{
 					lesson := admin.Group("/lesson")

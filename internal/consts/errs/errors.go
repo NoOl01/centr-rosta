@@ -35,7 +35,8 @@ var (
 
 // 403
 var (
-	AccessDenied = New(Forbidden, errors.New("access denied"))
+	AccessDenied     = New(Forbidden, errors.New("access denied"))
+	PermissionDenied = New(Forbidden, errors.New("insufficient permissions to update profile"))
 )
 
 // 404

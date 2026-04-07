@@ -11,7 +11,7 @@ func (uad *useCaseAdmin) TransactionStatsByTimePeriod(ctx context.Context, acces
 	var from, to time.Time
 	var err error
 
-	if err := uad.validate.ValidateAdmin(ctx, sessionID, accessToken); err != nil {
+	if _, err := uad.validate.ValidateAdmin(ctx, sessionID, accessToken); err != nil {
 		return nil, 0, err
 	}
 

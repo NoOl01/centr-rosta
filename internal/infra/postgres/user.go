@@ -66,14 +66,15 @@ func (ur *UserRepository) CreateUser(user *entity.User) error {
 }
 
 func (ur *UserRepository) UpdateUser(id int64, user *entity.UpdateUser) error {
-	newUser := models.User{
-		FirstName: *user.FirstName,
-		LastName:  *user.LastName,
-		Email:     *user.Email,
-		Password:  *user.Password,
+	var dbUser models.User
+	if err := ur.db.First(&dbUser, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errs.RecordNotFound
+		}
+		return errs.DbInternalError
 	}
 
-	if err := ur.db.Where("id = ?", id).Updates(&newUser).Error; err != nil {
+	if err := ur.db.Where("id = ?", id).Updates(new(ur.updateStructBuild(dbUser, *user))).Error; err != nil {
 		logger.Log.Error(log_names.UserRepository, err.Error())
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.RecordNotFound
@@ -150,4 +151,24 @@ func (ur *UserRepository) GetUserByEmail(email string) (*entity.User, error) {
 	}
 
 	return &user, nil
+}
+
+func (ur *UserRepository) updateStructBuild(dbUser models.User, updateUser entity.UpdateUser) (newUser models.User) {
+	newUser = models.User{
+		FirstName: isEmpty(updateUser.FirstName, dbUser.FirstName),
+		LastName:  isEmpty(updateUser.LastName, dbUser.LastName),
+		Email:     isEmpty(updateUser.Email, dbUser.Email),
+		Password:  isEmpty(updateUser.Password, dbUser.Password),
+		Role:      isEmpty(updateUser.Role, dbUser.Role),
+	}
+
+	return
+}
+
+func isEmpty(newVal *string, fallback string) string {
+	if newVal == nil || *newVal == "" {
+		return fallback
+	}
+
+	return *newVal
 }

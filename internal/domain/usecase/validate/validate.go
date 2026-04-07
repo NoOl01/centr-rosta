@@ -8,7 +8,7 @@ import (
 
 type Validate interface {
 	Validate(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error)
-	ValidateAdmin(ctx context.Context, sessionID, accessToken string) error
+	ValidateAdmin(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error)
 }
 
 type validate struct {
@@ -44,15 +44,15 @@ func (v *validate) Validate(ctx context.Context, sessionID, accessToken string) 
 	return payload, nil
 }
 
-func (v *validate) ValidateAdmin(ctx context.Context, sessionID, accessToken string) error {
+func (v *validate) ValidateAdmin(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error) {
 	payload, err := v.Validate(ctx, sessionID, accessToken)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if payload.Role != entity.AdminRole {
-		return errs.AccessDenied
+		return nil, errs.AccessDenied
 	}
 
-	return nil
+	return payload, nil
 }

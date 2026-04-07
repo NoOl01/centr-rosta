@@ -18,6 +18,11 @@ type Refresh struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+type UpdateRole struct {
+	UserID   int64  `json:"user_id"`
+	RoleName string `json:"role_name"`
+}
+
 type TransactionStats struct {
 	TotalAmount float64       `json:"total_amount"`
 	Transaction []Transaction `json:"transaction"`

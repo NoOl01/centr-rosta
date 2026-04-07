@@ -32,7 +32,7 @@ func (p *PassHash) CheckPass(password, dbPassword string) error {
 			return errs.WrongPassword
 		}
 		logger.Log.Error(log_names.PassHash, err.Error())
-		return errs.New(errs.InternalServerError, err)
+		return errs.InternalError
 	}
 	return nil
 }
