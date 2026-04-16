@@ -13,3 +13,9 @@ type Login struct {
 type Refresh struct {
 	RefreshToken string `json:"refresh_token"`
 }
+
+const (
+	Pending   = "pending"
+	Approved  = "approved"
+	Cancelled = "cancelled"
+)

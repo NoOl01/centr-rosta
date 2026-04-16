@@ -33,9 +33,9 @@ func (h *Handler) Router(r *gin.Engine) {
 				}
 				{
 					personalLesson := admin.Group("/personal-lesson")
-					personalLesson.GET("/")
-					personalLesson.POST("/approve")
-					personalLesson.DELETE("/cancel")
+					personalLesson.GET("/", h.adminPersonalLessonHandler.GetPersonalLessonsRequests)
+					personalLesson.POST("/approve", h.adminPersonalLessonHandler.ApprovePersonalLesson)
+					personalLesson.DELETE("/cancel", h.adminPersonalLessonHandler.CancelPersonalLesson)
 				}
 			}
 		}

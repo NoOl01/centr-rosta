@@ -4,12 +4,14 @@ import (
 	"centr_rosta/internal/config"
 	"centr_rosta/internal/domain/usecase/admin"
 	"centr_rosta/internal/domain/usecase/admin/admin_user"
+	adminpl "centr_rosta/internal/domain/usecase/admin/personal_lesson"
 	"centr_rosta/internal/domain/usecase/auth"
 	"centr_rosta/internal/domain/usecase/lesson"
 	validateus "centr_rosta/internal/domain/usecase/validate"
 	hand "centr_rosta/internal/handler"
 	handadmin "centr_rosta/internal/handler/admin"
 	handadminus "centr_rosta/internal/handler/admin/admin_user"
+	handadminpl "centr_rosta/internal/handler/admin/personal_lesson"
 	handauth "centr_rosta/internal/handler/auth"
 	handlesson "centr_rosta/internal/handler/lesson"
 	"centr_rosta/internal/handler/middleware"
@@ -29,24 +31,27 @@ type cacheData struct {
 }
 
 type repoData struct {
-	repoUser        *pg.UserRepository
-	repoTransaction *pg.TransactionRepository
-	repoLesson      *pg.LessonRepository
+	repoUser            *pg.UserRepository
+	repoTransaction     *pg.TransactionRepository
+	repoLesson          *pg.LessonRepository
+	repoPersonalLessons *pg.PersonalLessonRepository
 }
 
 type useCaseData struct {
-	useCaseAuth      auth.UseCaseAuth
-	useCaseAdmin     admin.UseCaseAdmin
-	useCaseLesson    lesson.UseCaseLesson
-	useCaseAdminUser admin_user.UseCaseAdminUser
+	useCaseAuth                 auth.UseCaseAuth
+	useCaseAdmin                admin.UseCaseAdmin
+	useCaseLesson               lesson.UseCaseLesson
+	useCaseAdminUser            admin_user.UseCaseAdminUser
+	useCaseAdminPersonalLessons adminpl.UseCasePersonalLesson
 }
 
 type handlerData struct {
-	handler          *hand.Handler
-	handlerAuth      *handauth.HandlerAuth
-	handlerAdmin     *handadmin.HandlerAdmin
-	handlerLesson    *handlesson.HandlerLesson
-	handlerAdminUser *handadminus.AdminUserHandler
+	handler                     *hand.Handler
+	handlerAuth                 *handauth.HandlerAuth
+	handlerAdmin                *handadmin.HandlerAdmin
+	handlerLesson               *handlesson.HandlerLesson
+	handlerAdminUser            *handadminus.AdminUserHandler
+	handlerAdminPersonalLessons *handadminpl.AdminPersonalLessonHandler
 }
 
 type middlewareData struct {
@@ -111,6 +116,7 @@ func repositoryInit(db *gorm.DB, repo *repoData) {
 	repo.repoUser = pg.NewUserRepository(db)
 	repo.repoTransaction = pg.NewTransactionRepository(db)
 	repo.repoLesson = pg.NewLessonRepository(db)
+	repo.repoPersonalLessons = pg.NewPersonalLessonRepository(db)
 }
 
 func useCaseInit(repo *repoData, cache *cacheData, useCase *useCaseData, jwt *jwtData, passHash *passHashData) {
@@ -120,6 +126,7 @@ func useCaseInit(repo *repoData, cache *cacheData, useCase *useCaseData, jwt *jw
 	useCase.useCaseAdmin = admin.NewUseCaseAdmin(repo.repoTransaction, validate)
 	useCase.useCaseLesson = lesson.NewUseCaseLesson(repo.repoLesson, cache.session, validate)
 	useCase.useCaseAdminUser = admin_user.NewUseCaseAdminUser(repo.repoUser, validate, passHash.passHash)
+	useCase.useCaseAdminPersonalLessons = adminpl.NewUseCasePersonalLesson(repo.repoPersonalLessons, validate)
 }
 
 func handlerInit(useCase *useCaseData, handler *handlerData) {
@@ -127,6 +134,7 @@ func handlerInit(useCase *useCaseData, handler *handlerData) {
 	handler.handlerAdmin = handadmin.NewHandlerAdmin(useCase.useCaseAdmin)
 	handler.handlerLesson = handlesson.NewHandlerLesson(useCase.useCaseLesson)
 	handler.handlerAdminUser = handadminus.NewAdminUserHandler(useCase.useCaseAdminUser)
+	handler.handlerAdminPersonalLessons = handadminpl.NewAdminPersonalLessonHandler(useCase.useCaseAdminPersonalLessons)
 
 	handler.handler = hand.NewHandler(*handler.handlerAuth, *handler.handlerAdmin, *handler.handlerLesson, *handler.handlerAdminUser, *mw.middleware)
 }

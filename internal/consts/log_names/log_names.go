@@ -26,6 +26,7 @@ const (
 )
 
 const (
-	Helper        = "Helper"
-	PassGenerator = "Password Generator"
+	Helper         = "Helper"
+	PassGenerator  = "Password Generator"
+	ApproveUseCase = "Approve UseCase"
 )

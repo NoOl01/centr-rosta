@@ -43,17 +43,18 @@ type GroupLessonSubscription struct {
 }
 
 type PersonalLesson struct {
-	ID            int64  `gorm:"primaryKey;autoIncrement"`
-	LessonID      int64  `gorm:"not null"`
-	Lesson        Lesson `gorm:"foreignKey:LessonID"`
-	UserID        int64  `gorm:"not null"`
-	User          User   `gorm:"foreignKey:UserID"`
-	TeacherID     *int64
-	Teacher       *User     `gorm:"foreignKey:TeacherID"`
-	EstimatedTime time.Time `gorm:"not null"`
-	ExactTime     *time.Time
-	Status        string    `gorm:"not null;default:'pending'"`
-	CreatedAt     time.Time `gorm:"autoCreateTime"`
+	ID                int64  `gorm:"primaryKey;autoIncrement"`
+	LessonID          int64  `gorm:"not null"`
+	Lesson            Lesson `gorm:"foreignKey:LessonID"`
+	UserID            int64  `gorm:"not null"`
+	User              User   `gorm:"foreignKey:UserID"`
+	TeacherID         *int64
+	Teacher           *User     `gorm:"foreignKey:TeacherID"`
+	EstimatedTimeFrom time.Time `gorm:"not null"`
+	EstimatedTimeTo   time.Time `gorm:"not null"`
+	ExactTime         *time.Time
+	Status            string    `gorm:"not null;default:'pending'"`
+	CreatedAt         time.Time `gorm:"autoCreateTime"`
 }
 
 type FavouriteLesson struct {

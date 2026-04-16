@@ -4,6 +4,7 @@ import (
 	"centr_rosta/internal/consts/errs"
 	"centr_rosta/internal/consts/log_names"
 	"centr_rosta/internal/domain/entity"
+	"centr_rosta/internal/infra/postgres/helper"
 	"centr_rosta/internal/infra/postgres/models"
 	"centr_rosta/pkg/logger"
 	"errors"
@@ -74,7 +75,7 @@ func (ur *UserRepository) UpdateUser(id int64, user *entity.UpdateUser) error {
 		return errs.DbInternalError
 	}
 
-	if err := ur.db.Where("id = ?", id).Updates(new(ur.updateStructBuild(dbUser, *user))).Error; err != nil {
+	if err := ur.db.Where("id = ?", id).Updates(new(helper.UpdateUserStructBuild(dbUser, *user))).Error; err != nil {
 		logger.Log.Error(log_names.UserRepository, err.Error())
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errs.RecordNotFound
@@ -151,24 +152,4 @@ func (ur *UserRepository) GetUserByEmail(email string) (*entity.User, error) {
 	}
 
 	return &user, nil
-}
-
-func (ur *UserRepository) updateStructBuild(dbUser models.User, updateUser entity.UpdateUser) (newUser models.User) {
-	newUser = models.User{
-		FirstName: isEmpty(updateUser.FirstName, dbUser.FirstName),
-		LastName:  isEmpty(updateUser.LastName, dbUser.LastName),
-		Email:     isEmpty(updateUser.Email, dbUser.Email),
-		Password:  isEmpty(updateUser.Password, dbUser.Password),
-		Role:      isEmpty(updateUser.Role, dbUser.Role),
-	}
-
-	return
-}
-
-func isEmpty(newVal *string, fallback string) string {
-	if newVal == nil || *newVal == "" {
-		return fallback
-	}
-
-	return *newVal
 }

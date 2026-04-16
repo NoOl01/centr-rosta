@@ -51,3 +51,8 @@ type LessonData struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
+
+type ApprovePersonalLesson struct {
+	ID   int64  `json:"id"`
+	Time string `json:"time"`
+}
