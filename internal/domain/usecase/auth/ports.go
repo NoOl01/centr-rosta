@@ -29,3 +29,7 @@ type PassHash interface {
 	EncryptPassword(password string) (string, error)
 	CheckPass(password, dbPassword string) error
 }
+
+type Validate interface {
+	Validate(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error)
+}

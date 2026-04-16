@@ -2,6 +2,7 @@ package admin_user
 
 import (
 	"centr_rosta/internal/domain/entity"
+	"context"
 )
 
 type UserRepository interface {
@@ -12,4 +13,8 @@ type UserRepository interface {
 
 type PassHash interface {
 	EncryptPassword(password string) (string, error)
+}
+
+type Validate interface {
+	ValidateAdmin(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error)
 }

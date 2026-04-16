@@ -15,3 +15,8 @@ type RepositoryLesson interface {
 type RepositorySession interface {
 	Get(ctx context.Context, sessionID string) (*entity.Session, error)
 }
+
+type Validate interface {
+	Validate(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error)
+	ValidateAdmin(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error)
+}

@@ -1,29 +1,26 @@
-package validate
+package middleware
 
 import (
 	"centr_rosta/internal/consts/errs"
 	"centr_rosta/internal/domain/entity"
+	"centr_rosta/internal/infra/jwt"
+	"centr_rosta/internal/infra/redis"
 	"context"
 )
 
-type Validate interface {
-	Validate(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error)
-	ValidateAdmin(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error)
+type ValidateMiddleWare struct {
+	session redis.SessionRepository
+	jwt     jwt.ServiceJwt
 }
 
-type validate struct {
-	session SessionRepository
-	jwt     Jwt
-}
-
-func NewValidate(session SessionRepository, jwt Jwt) Validate {
-	return &validate{
+func NewValidateMiddleWare(session redis.SessionRepository, jwt jwt.ServiceJwt) *ValidateMiddleWare {
+	return &ValidateMiddleWare{
 		session: session,
 		jwt:     jwt,
 	}
 }
 
-func (v *validate) Validate(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error) {
+func (v *ValidateMiddleWare) Validate(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error) {
 	session, err := v.session.Get(ctx, sessionID)
 	if err != nil {
 		return nil, err
@@ -44,7 +41,7 @@ func (v *validate) Validate(ctx context.Context, sessionID, accessToken string) 
 	return payload, nil
 }
 
-func (v *validate) ValidateAdmin(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error) {
+func (v *ValidateMiddleWare) ValidateAdmin(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error) {
 	payload, err := v.Validate(ctx, sessionID, accessToken)
 	if err != nil {
 		return nil, err

@@ -2,7 +2,6 @@ package auth
 
 import (
 	"centr_rosta/internal/domain/entity"
-	"centr_rosta/internal/domain/usecase/validate"
 	"context"
 	"strconv"
 )
@@ -20,10 +19,10 @@ type useCaseAuth struct {
 	sr       SessionRepository
 	jwt      Jwt
 	pass     PassHash
-	validate validate.Validate
+	validate Validate
 }
 
-func NewUseCaseAuth(ur UserRepository, sr SessionRepository, jwt Jwt, pass PassHash, validate validate.Validate) UseCaseAuth {
+func NewUseCaseAuth(ur UserRepository, sr SessionRepository, jwt Jwt, pass PassHash, validate Validate) UseCaseAuth {
 	return &useCaseAuth{
 		ur:       ur,
 		sr:       sr,

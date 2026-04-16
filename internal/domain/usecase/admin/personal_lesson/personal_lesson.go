@@ -10,7 +10,7 @@ import (
 
 const layout = "02.01.2006 15:04:05"
 
-func (ucpl *useCasePersonalLesson) GetPersonalLessonsRequests(ctx context.Context, sessionID, accessToken string) ([]entity.PersonalLesson, error) {
+func (ucpl *useCaseAdminPersonalLesson) GetPersonalLessonsRequests(ctx context.Context, sessionID, accessToken string) ([]entity.PersonalLesson, error) {
 	_, err := ucpl.validate.ValidateAdmin(ctx, sessionID, accessToken)
 	if err != nil {
 		return nil, err
@@ -19,7 +19,7 @@ func (ucpl *useCasePersonalLesson) GetPersonalLessonsRequests(ctx context.Contex
 	return ucpl.plr.Get()
 }
 
-func (ucpl *useCasePersonalLesson) ApprovePersonalLesson(ctx context.Context, sessionID, accessToken string, personalLessonID int64, newTime string) error {
+func (ucpl *useCaseAdminPersonalLesson) ApprovePersonalLesson(ctx context.Context, sessionID, accessToken string, personalLessonID int64, newTime string) error {
 	_, err := ucpl.validate.ValidateAdmin(ctx, sessionID, accessToken)
 	if err != nil {
 		return err
@@ -40,7 +40,7 @@ func (ucpl *useCasePersonalLesson) ApprovePersonalLesson(ctx context.Context, se
 	return ucpl.plr.Update(&personalLesson)
 }
 
-func (ucpl *useCasePersonalLesson) CancelPersonalLesson(ctx context.Context, sessionID, accessToken string, personalLessonID int64) error {
+func (ucpl *useCaseAdminPersonalLesson) CancelPersonalLesson(ctx context.Context, sessionID, accessToken string, personalLessonID int64) error {
 	_, err := ucpl.validate.ValidateAdmin(ctx, sessionID, accessToken)
 	if err != nil {
 		return err

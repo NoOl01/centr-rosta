@@ -2,7 +2,6 @@ package lesson
 
 import (
 	"centr_rosta/internal/domain/entity"
-	"centr_rosta/internal/domain/usecase/validate"
 	"context"
 )
 
@@ -16,10 +15,10 @@ type UseCaseLesson interface {
 type useCaseLesson struct {
 	rl       RepositoryLesson
 	rs       RepositorySession
-	validate validate.Validate
+	validate Validate
 }
 
-func NewUseCaseLesson(rl RepositoryLesson, rs RepositorySession, validate validate.Validate) UseCaseLesson {
+func NewUseCaseLesson(rl RepositoryLesson, rs RepositorySession, validate Validate) UseCaseLesson {
 	return &useCaseLesson{
 		rl:       rl,
 		rs:       rs,

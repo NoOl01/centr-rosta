@@ -7,15 +7,15 @@ import (
 	adminpl "centr_rosta/internal/domain/usecase/admin/personal_lesson"
 	"centr_rosta/internal/domain/usecase/auth"
 	"centr_rosta/internal/domain/usecase/lesson"
-	validateus "centr_rosta/internal/domain/usecase/validate"
 	hand "centr_rosta/internal/handler"
 	handadmin "centr_rosta/internal/handler/admin"
 	handadminus "centr_rosta/internal/handler/admin/admin_user"
 	handadminpl "centr_rosta/internal/handler/admin/personal_lesson"
 	handauth "centr_rosta/internal/handler/auth"
 	handlesson "centr_rosta/internal/handler/lesson"
-	"centr_rosta/internal/handler/middleware"
+	handmiddleware "centr_rosta/internal/handler/middleware"
 	jwts "centr_rosta/internal/infra/jwt"
+	"centr_rosta/internal/infra/middleware"
 	"centr_rosta/internal/infra/pass_hash"
 	"fmt"
 
@@ -26,8 +26,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type cacheData struct {
-	session *re.SessionRepository
+type infraData struct {
+	session  *re.SessionRepository
+	jwt      *jwts.ServiceJwt
+	passHash *pass_hash.PassHash
+	validate *middleware.ValidateMiddleWare
 }
 
 type repoData struct {
@@ -42,11 +45,12 @@ type useCaseData struct {
 	useCaseAdmin                admin.UseCaseAdmin
 	useCaseLesson               lesson.UseCaseLesson
 	useCaseAdminUser            admin_user.UseCaseAdminUser
-	useCaseAdminPersonalLessons adminpl.UseCasePersonalLesson
+	useCaseAdminPersonalLessons adminpl.UseCaseAdminPersonalLesson
 }
 
 type handlerData struct {
 	handler                     *hand.Handler
+	handlerMiddleware           *handmiddleware.Middleware
 	handlerAuth                 *handauth.HandlerAuth
 	handlerAdmin                *handadmin.HandlerAdmin
 	handlerLesson               *handlesson.HandlerLesson
@@ -54,26 +58,10 @@ type handlerData struct {
 	handlerAdminPersonalLessons *handadminpl.AdminPersonalLessonHandler
 }
 
-type middlewareData struct {
-	middleware *middleware.Middleware
-}
-
-type jwtData struct {
-	jwt *jwts.ServiceJwt
-}
-
-type passHashData struct {
-	passHash *pass_hash.PassHash
-}
-
-var validate validateus.Validate
-var cache = &cacheData{}
+var infra = &infraData{}
 var repo = &repoData{}
-var serv = &useCaseData{}
+var useCase = &useCaseData{}
 var handler = &handlerData{}
-var mw = &middlewareData{}
-var jwt = &jwtData{}
-var passHash = &passHashData{}
 
 func Bootstrap() (rdb *redis.Client, h hand.Handler) {
 	rdb = redis.NewClient(&redis.Options{
@@ -83,58 +71,45 @@ func Bootstrap() (rdb *redis.Client, h hand.Handler) {
 	})
 	db := pg.Connect()
 
-	jwtInit([]byte(config.Env.JwtSecret))
-	passHashInit()
-	middlewareInit()
-	cacheInit(rdb, cache)
-	repositoryInit(db, repo)
-	useCaseInit(repo, cache, serv, jwt, passHash)
-	handlerInit(serv, handler)
+	infraInit(rdb)
+	repositoryInit(db)
+	useCaseInit()
+	handlerInit()
 
 	h = *handler.handler
 
 	return
 }
 
-func jwtInit(secret []byte) {
-	jwt.jwt = jwts.NewServiceJwt(secret)
+func infraInit(rdb *redis.Client) {
+	infra.session = re.NewRepositorySession(rdb)
+	infra.jwt = jwts.NewServiceJwt([]byte(config.Env.JwtSecret))
+	infra.passHash = pass_hash.NewPassHash()
+	infra.validate = middleware.NewValidateMiddleWare(*infra.session, *infra.jwt)
 }
 
-func passHashInit() {
-	passHash.passHash = pass_hash.NewPassHash()
-}
-
-func middlewareInit() {
-	mw.middleware = middleware.NewMiddleware()
-}
-
-func cacheInit(rdb *redis.Client, cache *cacheData) {
-	cache.session = re.NewRepositorySession(rdb)
-}
-
-func repositoryInit(db *gorm.DB, repo *repoData) {
+func repositoryInit(db *gorm.DB) {
 	repo.repoUser = pg.NewUserRepository(db)
 	repo.repoTransaction = pg.NewTransactionRepository(db)
 	repo.repoLesson = pg.NewLessonRepository(db)
 	repo.repoPersonalLessons = pg.NewPersonalLessonRepository(db)
 }
 
-func useCaseInit(repo *repoData, cache *cacheData, useCase *useCaseData, jwt *jwtData, passHash *passHashData) {
-	validate = validateus.NewValidate(cache.session, jwt.jwt)
-
-	useCase.useCaseAuth = auth.NewUseCaseAuth(repo.repoUser, cache.session, jwt.jwt, passHash.passHash, validate)
-	useCase.useCaseAdmin = admin.NewUseCaseAdmin(repo.repoTransaction, validate)
-	useCase.useCaseLesson = lesson.NewUseCaseLesson(repo.repoLesson, cache.session, validate)
-	useCase.useCaseAdminUser = admin_user.NewUseCaseAdminUser(repo.repoUser, validate, passHash.passHash)
-	useCase.useCaseAdminPersonalLessons = adminpl.NewUseCasePersonalLesson(repo.repoPersonalLessons, validate)
+func useCaseInit() {
+	useCase.useCaseAuth = auth.NewUseCaseAuth(repo.repoUser, infra.session, infra.jwt, infra.passHash, infra.validate)
+	useCase.useCaseLesson = lesson.NewUseCaseLesson(repo.repoLesson, infra.session, infra.validate)
+	useCase.useCaseAdmin = admin.NewUseCaseAdmin(repo.repoTransaction, infra.validate)
+	useCase.useCaseAdminUser = admin_user.NewUseCaseAdminUser(repo.repoUser, infra.validate, infra.passHash)
+	useCase.useCaseAdminPersonalLessons = adminpl.NewUseCaseAdminPersonalLesson(repo.repoPersonalLessons, infra.validate)
 }
 
-func handlerInit(useCase *useCaseData, handler *handlerData) {
+func handlerInit() {
 	handler.handlerAuth = handauth.NewHandlerAuth(useCase.useCaseAuth)
 	handler.handlerAdmin = handadmin.NewHandlerAdmin(useCase.useCaseAdmin)
 	handler.handlerLesson = handlesson.NewHandlerLesson(useCase.useCaseLesson)
 	handler.handlerAdminUser = handadminus.NewAdminUserHandler(useCase.useCaseAdminUser)
 	handler.handlerAdminPersonalLessons = handadminpl.NewAdminPersonalLessonHandler(useCase.useCaseAdminPersonalLessons)
 
-	handler.handler = hand.NewHandler(*handler.handlerAuth, *handler.handlerAdmin, *handler.handlerLesson, *handler.handlerAdminUser, *mw.middleware)
+	handler.handlerMiddleware = handmiddleware.NewMiddleware()
+	handler.handler = hand.NewHandler(*handler.handlerAuth, *handler.handlerAdmin, *handler.handlerLesson, *handler.handlerAdminUser, *handler.handlerAdminPersonalLessons, *handler.handlerMiddleware)
 }

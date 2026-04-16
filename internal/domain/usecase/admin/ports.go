@@ -17,3 +17,7 @@ type SessionRepository interface {
 type Jwt interface {
 	ValidateJwt(token string) (*entity.Payload, error)
 }
+
+type Validate interface {
+	ValidateAdmin(ctx context.Context, sessionID, accessToken string) (*entity.Payload, error)
+}

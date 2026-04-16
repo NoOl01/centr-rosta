@@ -18,12 +18,13 @@ type Handler struct {
 	middleware                 middleware.Middleware
 }
 
-func NewHandler(handlerAuth auth.HandlerAuth, handlerAdmin admin.HandlerAdmin, handlerLesson lesson.HandlerLesson, adminUserHandler admin_user.AdminUserHandler, middleware middleware.Middleware) *Handler {
+func NewHandler(handlerAuth auth.HandlerAuth, handlerAdmin admin.HandlerAdmin, handlerLesson lesson.HandlerLesson, adminUserHandler admin_user.AdminUserHandler, adminPersonalLessonHandler personal_lesson.AdminPersonalLessonHandler, middleware middleware.Middleware) *Handler {
 	return &Handler{
-		handlerAuth:      handlerAuth,
-		handlerAdmin:     handlerAdmin,
-		handlerLesson:    handlerLesson,
-		adminUserHandler: adminUserHandler,
-		middleware:       middleware,
+		handlerAuth:                handlerAuth,
+		handlerAdmin:               handlerAdmin,
+		handlerLesson:              handlerLesson,
+		adminUserHandler:           adminUserHandler,
+		adminPersonalLessonHandler: adminPersonalLessonHandler,
+		middleware:                 middleware,
 	}
 }
